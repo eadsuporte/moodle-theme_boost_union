@@ -55,7 +55,11 @@ function theme_boost_union_get_flavour_which_applies() {
     } else {
         // If we are on the preview page.
         $previewurl = new core\url('/theme/boost_union/flavours/preview.php');
-        if ($previewurl->compare($PAGE->url, URL_MATCH_BASE) == true) {
+        $myhomeurl = new core\url('/local/myhome/home.php');
+
+        $ispreviewurl = $previewurl->compare($PAGE->url, URL_MATCH_BASE);
+        $ismyhomeurl = $myhomeurl->compare($PAGE->url, URL_MATCH_BASE);
+        if ($ispreviewurl || $ismyhomeurl) {
             // Get the flavour from the URL.
             $previewflavourid = required_param('id', PARAM_INT);
 
