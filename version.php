@@ -30,4 +30,4 @@ $plugin->component = 'theme_boost_union';
 $plugin->requires = 2024100702;
 $plugin->supported = [405, 405];
 $plugin->maturity = MATURITY_STABLE;
-$plugin->dependencies = ['theme_boost' => 2025100600];
+$plugin->dependencies = ['theme_boost' => 2024100700];
