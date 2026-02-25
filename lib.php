@@ -28,8 +28,6 @@ define('THEME_BOOST_UNION_SETTING_SELECT_NO', 'no');
 
 define('THEME_BOOST_UNION_SETTING_SELECT_NOCHANGE', 'nochange');
 
-define('THEME_BOOST_UNION_SETTING_USEGLOBAL', 'useglobal');
-
 define('THEME_BOOST_UNION_SETTING_STATICPAGELINKPOSITION_NONE', 'none');
 define('THEME_BOOST_UNION_SETTING_STATICPAGELINKPOSITION_FOOTNOTE', 'footnote');
 define('THEME_BOOST_UNION_SETTING_STATICPAGELINKPOSITION_FOOTER', 'footer');
@@ -39,7 +37,6 @@ define('THEME_BOOST_UNION_SETTING_HIDENODESPRIMARYNAVIGATION_HOME', 'home');
 define('THEME_BOOST_UNION_SETTING_HIDENODESPRIMARYNAVIGATION_MYHOME', 'myhome');
 define('THEME_BOOST_UNION_SETTING_HIDENODESPRIMARYNAVIGATION_MYCOURSES', 'courses');
 define('THEME_BOOST_UNION_SETTING_HIDENODESPRIMARYNAVIGATION_SITEADMIN', 'siteadminnode');
-define('THEME_BOOST_UNION_SETTING_HIDENODESPRIMARYNAVIGATION_CALENDAR', 'calendar');
 
 define('THEME_BOOST_UNION_SETTING_INFOBANNER_COUNT', 5);
 define('THEME_BOOST_UNION_SETTING_INFOBANNERPAGES_MY', 'mydashboard');
@@ -49,8 +46,6 @@ define('THEME_BOOST_UNION_SETTING_INFOBANNERPAGES_COURSE', 'course');
 define('THEME_BOOST_UNION_SETTING_INFOBANNERPAGES_LOGIN', 'login');
 define('THEME_BOOST_UNION_SETTING_INFOBANNERMODE_PERPETUAL', 'perp');
 define('THEME_BOOST_UNION_SETTING_INFOBANNERMODE_TIMEBASED', 'time');
-define('THEME_BOOST_UNION_SETTING_INFOBANNERPOSITION_ABOVE', 'above');
-define('THEME_BOOST_UNION_SETTING_INFOBANNERPOSITION_BELOW', 'below');
 
 define('THEME_BOOST_UNION_SETTING_ADVERTISEMENTTILES_COUNT', 12);
 define('THEME_BOOST_UNION_SETTING_ADVERTISEMENTTILES_COLUMN_COUNT', 4);
@@ -58,6 +53,7 @@ define('THEME_BOOST_UNION_SETTING_ADVERTISEMENTTILES_FRONTPAGEPOSITION_BEFORE', 
 define('THEME_BOOST_UNION_SETTING_ADVERTISEMENTTILES_FRONTPAGEPOSITION_AFTER', 2);
 
 define('THEME_BOOST_UNION_SETTING_SLIDES_COUNT', 6);
+define('THEME_BOOST_UNION_SETTING_SLIDER_ANIMATIONTYPE_NONE', 0);
 define('THEME_BOOST_UNION_SETTING_SLIDER_ANIMATIONTYPE_SLIDE', 1);
 define('THEME_BOOST_UNION_SETTING_SLIDER_ANIMATIONTYPE_FADE', 2);
 define('THEME_BOOST_UNION_SETTING_SLIDER_FRONTPAGEPOSITION_BEFOREBEFORE', 1);
@@ -70,8 +66,6 @@ define('THEME_BOOST_UNION_SETTING_SLIDER_RIDE_NEVER', 2);
 define('THEME_BOOST_UNION_SETTING_SLIDER_LINKSOURCE_BOTH', 0);
 define('THEME_BOOST_UNION_SETTING_SLIDER_LINKSOURCE_IMAGE', 1);
 define('THEME_BOOST_UNION_SETTING_SLIDER_LINKSOURCE_TEXT', 2);
-define('THEME_BOOST_UNION_SETTING_SLIDER_VARIANT_LIGHT', 'light');
-define('THEME_BOOST_UNION_SETTING_SLIDER_VARIANT_DARK', 'dark');
 
 define('THEME_BOOST_UNION_SETTING_HEIGHT_100PX', '100px');
 define('THEME_BOOST_UNION_SETTING_HEIGHT_150PX', '150px');
@@ -91,37 +85,9 @@ define('THEME_BOOST_UNION_SETTING_IMAGEPOSITION_RIGHT_TOP', 'right top');
 define('THEME_BOOST_UNION_SETTING_IMAGEPOSITION_RIGHT_CENTER', 'right center');
 define('THEME_BOOST_UNION_SETTING_IMAGEPOSITION_RIGHT_BOTTOM', 'right bottom');
 
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERLAYOUT_STACKED', 'stacked');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERLAYOUT_HEADINGABOVE', 'headingabove');
-
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_COURSEPLUSGLOBAL', 'courseplusglobal');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_COURSENOGLOBAL', 'coursenoglobal');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_DEDICATEDPLUSGLOBAL', 'dedicatedplusglobal');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_DEDICATEDNOGLOBAL', 'dedicatednoglobal');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_DEDICATEDPLUSCOURSEPLUSGLOBAL', 'dedicatedpluscourseplusfallback');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_DEDICATEDPLUSCOURSENOGLOBAL', 'dedicatedpluscoursenofallback');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_GLOBAL', 'global');
-
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGEREQUIREMENT_STANDARDONLY', 'standardonly');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGEREQUIREMENT_ENHANCEDWITHOUTIMAGE', 'enhancedwithoutimage');
-
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERCANVASBORDER_NONE', 'none');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERCANVASBORDER_GREY', 'grey');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERCANVASBORDER_BRANDCOLOR', 'brandcolor');
-
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERCANVASBACKGROUND_TRANSPARENT', 'transparent');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERCANVASBACKGROUND_WHITE', 'white');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERCANVASBACKGROUND_LIGHTGREY', 'lightgrey');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERCANVASBACKGROUND_LIGHTBRANDCOLOR', 'lightbrandcolor');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERCANVASBACKGROUND_BRANDCOLORGRADIENTLIGHT', 'brandcolorgradientlight');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERCANVASBACKGROUND_BRANDCOLORGRADIENTFULL', 'brandcolorgradientfull');
-
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERTEXTONIMAGESTYLE_LIGHT', 'light');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERTEXTONIMAGESTYLE_LIGHTSHADOW', 'lightshadow');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERTEXTONIMAGESTYLE_LIGHTBG', 'lightbg');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERTEXTONIMAGESTYLE_DARK', 'dark');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERTEXTONIMAGESTYLE_DARKSHADOW', 'darkshadow');
-define('THEME_BOOST_UNION_SETTING_COURSEHEADERTEXTONIMAGESTYLE_DARKBG', 'darkbg');
+define('THEME_BOOST_UNION_SETTING_COURSEIMAGELAYOUT_STACKEDDARK', 'stackeddark');
+define('THEME_BOOST_UNION_SETTING_COURSEIMAGELAYOUT_STACKEDLIGHT', 'stackedlight');
+define('THEME_BOOST_UNION_SETTING_COURSEIMAGELAYOUT_HEADINGABOVE', 'headingabove');
 
 define('THEME_BOOST_UNION_SETTING_COMPLETIONINFOPOSITION_STARTOFLINE', 'startofline');
 define('THEME_BOOST_UNION_SETTING_COMPLETIONINFOPOSITION_ENDOFLINE', 'endofline');
@@ -150,10 +116,6 @@ define('THEME_BOOST_UNION_SETTING_OUTSIDEREGIONSPLACEMENT_NEARWINDOW', 'nearwind
 define('THEME_BOOST_UNION_SETTING_OUTSIDEREGIONSWITH_FULLWIDTH', 'fullwidth');
 define('THEME_BOOST_UNION_SETTING_OUTSIDEREGIONSWITH_COURSECONTENTWIDTH', 'coursecontentwidth');
 define('THEME_BOOST_UNION_SETTING_OUTSIDEREGIONSWITH_HEROWIDTH', 'herowidth');
-define('THEME_BOOST_UNION_SETTING_OUTSIDEREGIONSVERTICALALIGN_DEFAULT', 0);
-define('THEME_BOOST_UNION_SETTING_OUTSIDEREGIONSVERTICALALIGN_PAGECONTENT', 1);
-define('THEME_BOOST_UNION_SETTING_OUTSIDEREGIONSWRAPPING_ABOVEBELOW', 0);
-define('THEME_BOOST_UNION_SETTING_OUTSIDEREGIONSWRAPPING_BOTHBELOW', 1);
 
 define('THEME_BOOST_UNION_SETTING_ENABLEFOOTER_ALL', 'enablefooterbuttonall');
 define('THEME_BOOST_UNION_SETTING_ENABLEFOOTER_DESKTOP', 'enablefooterbuttondesktop');
@@ -173,7 +135,6 @@ define('THEME_BOOST_UNION_SETTING_EXTSCSSSOURCE_GITHUB', 2);
 
 define('THEME_BOOST_UNION_SETTING_SELECT_NEVER', 'never');
 define('THEME_BOOST_UNION_SETTING_SELECT_ALWAYS', 'always');
-define('THEME_BOOST_UNION_SETTING_SELECT_BYCAPABILITY', 'bycapability');
 define('THEME_BOOST_UNION_SETTING_SELECT_AUTO', 'auto');
 define('THEME_BOOST_UNION_SETTING_SELECT_ONLYGUESTSANDNONLOGGEDIN', 'guestandnonloggedin');
 
@@ -367,6 +328,10 @@ function theme_boost_union_get_pre_scss($theme) {
     if (get_config('theme_boost_union', 'coursecontentmaxwidth')) {
         $scss .= '$course-content-maxwidth: ' . get_config('theme_boost_union', 'coursecontentmaxwidth') . ";\n";
     }
+    // Set variables which are influenced by the mediumcontentmaxwidth setting.
+    if (get_config('theme_boost_union', 'mediumcontentmaxwidth')) {
+        $scss .= '$medium-content-maxwidth: ' . get_config('theme_boost_union', 'mediumcontentmaxwidth') . ";\n";
+    }
     // Set variables which are influenced by the h5pcontentmaxwidth setting.
     if (get_config('theme_boost_union', 'h5pcontentmaxwidth')) {
         $scss .= '$h5p-content-maxwidth: ' . get_config('theme_boost_union', 'h5pcontentmaxwidth') . ";\n";
@@ -405,8 +370,14 @@ function theme_boost_union_get_pre_scss($theme) {
 
         // If a color is set.
         if (!empty($activityiconcolor)) {
-            // Set the activity-icon-*-bg variable which will be replaced with the CSS filters by Moodle core.
+            // Set the activity-icon-*-bg variable which was replaced by the CSS filters in Moodle 4.4 but which is still part
+            // of the codebase.
             $scss .= '$activity-icon-' . $purpose . '-bg: ' . $activityiconcolor . ";\n";
+
+            // Set the activity-icon-*-filter variable which holds the CSS filters for the activity icon colors now.
+            $solver = new \theme_boost_union\lib\hextocssfilter\solver($activityiconcolor);
+            $cssfilterresult = $solver->solve();
+            $scss .= '$activity-icon-' . $purpose . '-filter: ' . $cssfilterresult['filter'] . ";\n";
         }
     }
 
@@ -717,11 +688,11 @@ function theme_boost_union_pluginfile($course, $cm, $context, $filearea, $args, 
     } else if (
         $context->contextlevel == CONTEXT_SYSTEM && ($filearea === 'backgroundimage' ||
         $filearea === 'loginbackgroundimage' || $filearea === 'additionalresources' ||
-                $filearea === 'customfonts' || $filearea === 'courseheaderimageglobal' ||
+                $filearea === 'customfonts' || $filearea === 'courseheaderimagefallback' ||
                 $filearea === 'courseoverviewimagefallback' ||
                 $filearea === 'touchiconsios' || $filearea === 'uploadedsnippets' ||
-                preg_match("/tile[2-9]|1[0-2]backgroundimage?/", $filearea) ||
-                preg_match("/slide[2-9]|1[0-2]?backgroundimage/", $filearea))
+                preg_match("/tilebackgroundimage[2-9]|1[0-2]?/", $filearea) ||
+                preg_match("/slidebackgroundimage[2-9]|1[0-2]?/", $filearea))
     ) {
         $theme = \core\output\theme_config::load('boost_union');
         // By default, theme files must be cache-able by both browsers and proxies.
@@ -729,25 +700,6 @@ function theme_boost_union_pluginfile($course, $cm, $context, $filearea, $args, 
             $options['cacheability'] = 'public';
         }
         return $theme->setting_file_serve($filearea, $args, $forcedownload, $options);
-
-        // Serve course header image files from course context.
-    } else if ($context->contextlevel == CONTEXT_COURSE && $filearea === 'courseheaderimage') {
-        // Get file storage.
-        $fs = get_file_storage();
-
-        // Get the file from the filestorage.
-        $filename = clean_param(array_pop($args), PARAM_FILE);
-        $itemid = clean_param(array_pop($args), PARAM_INT);
-
-        if (
-            (!$file = $fs->get_file($context->id, 'theme_boost_union', $filearea, $itemid, '/', $filename)) ||
-                $file->is_directory()
-        ) {
-            send_file_not_found();
-        }
-
-        // Send the file.
-        send_stored_file($file, null, 0, $forcedownload, $options);
 
         // Serve the background files from the theme flavours.
         // This code is copied and modified from the best practices in lib/filelib.php.
@@ -1036,35 +988,4 @@ function theme_boost_union_reset_fontawesome_icon_map() {
     $cache->delete($mapkey);
     // And rebuild it brutally.
     $instance->get_icon_name_map();
-}
-
-/**
- * Helper function to purge the course overrides cache.
- * This function is used as callback when a global course header setting is changed.
- *
- * Please note: This function purges the whole cache, not only the cache entry for a single setting.
- * Moodle passes the setting name on to the callback function, but we do not use it here as
- * the course overrides cache is not separated by setting names.
- * We would have to parse the whole cache and remove only the entries for the changed setting or we would have to bloat the
- * cache keys with setting names.
- * Purging the whole cache is simpler and not too performance critical as changing global course header settings
- * is not a frequent operation.
- */
-function theme_boost_union_purge_courseoverrides_cache() {
-    // Purge the course overrides cache.
-    $cache = \cache::make('theme_boost_union', 'courseoverrides');
-    $cache->purge();
-}
-
-/**
- * Callback function that is called when a course is deleted.
- * This function is used to clean up any course-specific settings that were set in Boost Union.
- *
- * @param stdClass $course The course being deleted
- */
-function theme_boost_union_pre_course_delete($course) {
-    global $DB;
-
-    // Delete the course-specific settings for this course.
-    $DB->delete_records('theme_boost_union_course', ['courseid' => $course->id]);
 }

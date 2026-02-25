@@ -529,40 +529,7 @@ function xmldb_theme_boost_union_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2024100716, 'theme', 'boost_union');
     }
 
-    if ($oldversion < 2025041400) {
-        // Remove the mediumcontentmaxwidth setting from Boost Union.
-        unset_config('mediumcontentmaxwidth', 'theme_boost_union');
-
-        // Remove the activitiestintenabled setting from Boost Union.
-        unset_config('activitiestintenabled', 'theme_boost_union');
-
-        // Remove the activityiconcolorfidelity setting from Boost Union.
-        unset_config('activityiconcolorfidelity', 'theme_boost_union');
-
-        // Boost_union savepoint reached.
-        upgrade_plugin_savepoint(true, 2025041400, 'theme', 'boost_union');
-    }
-
-    if ($oldversion < 2025041401) {
-        // Set the guestroleupgradedfrompre500 marker to be used by the settings_update_guestrole.php script.
-        set_config('guestroleupgradedfrompre500', 1, 'theme_boost_union');
-
-        // Boost_union savepoint reached.
-        upgrade_plugin_savepoint(true, 2025041401, 'theme', 'boost_union');
-    }
-
-    if ($oldversion < 2025041402) {
-        // Remove the THEME_BOOST_UNION_SETTING_SLIDER_ANIMATIONTYPE_NONE option from the slideranimation setting.
-        $oldconfig = get_config('theme_boost_union', 'slideranimation');
-        if ($oldconfig == 0) {
-            set_config('slideranimation', THEME_BOOST_UNION_SETTING_SLIDER_ANIMATIONTYPE_SLIDE, 'theme_boost_union');
-        }
-
-        // Boost_union savepoint reached.
-        upgrade_plugin_savepoint(true, 2025041402, 'theme', 'boost_union');
-    }
-
-    if ($oldversion < 2025041406) {
+    if ($oldversion < 2024100736) {
         // Define table theme_boost_union_menus to be altered.
         $table = new xmldb_table('theme_boost_union_menuitems');
 
@@ -583,10 +550,10 @@ function xmldb_theme_boost_union_upgrade($oldversion) {
         }
 
         // Boost_union savepoint reached.
-        upgrade_plugin_savepoint(true, 2025041406, 'theme', 'boost_union');
+        upgrade_plugin_savepoint(true, 2024100736, 'theme', 'boost_union');
     }
 
-    if ($oldversion < 2025041410) {
+    if ($oldversion < 2024100739) {
         // Get the current showhintcourseguestenrol setting.
         $oldsetting = get_config('theme_boost_union', 'showhintcourseguestenrol');
 
@@ -601,10 +568,10 @@ function xmldb_theme_boost_union_upgrade($oldversion) {
         }
 
         // Boost_union savepoint reached.
-        upgrade_plugin_savepoint(true, 2025041410, 'theme', 'boost_union');
+        upgrade_plugin_savepoint(true, 2024100739, 'theme', 'boost_union');
     }
 
-    if ($oldversion < 2025041413) {
+    if ($oldversion < 2024100742) {
         // Get the current courselistinghowfields setting.
         $oldsetting = get_config('theme_boost_union', 'courselistinghowfields');
 
@@ -622,10 +589,10 @@ function xmldb_theme_boost_union_upgrade($oldversion) {
         }
 
         // Boost_union savepoint reached.
-        upgrade_plugin_savepoint(true, 2025041413, 'theme', 'boost_union');
+        upgrade_plugin_savepoint(true, 2024100742, 'theme', 'boost_union');
     }
 
-    if ($oldversion < 2025041415) {
+    if ($oldversion < 2024100744) {
         // Define table theme_boost_union_snippets to be created.
         $table = new xmldb_table('theme_boost_union_snippets');
 
@@ -645,10 +612,10 @@ function xmldb_theme_boost_union_upgrade($oldversion) {
         }
 
         // Boost_union savepoint reached.
-        upgrade_plugin_savepoint(true, 2025041415, 'theme', 'boost_union');
+        upgrade_plugin_savepoint(true, 2024100744, 'theme', 'boost_union');
     }
 
-    if ($oldversion < 2025041416) {
+    if ($oldversion < 2024100745) {
         // Convert existing hash-based dividers to real dividers.
         // These were created by using TYPEHEADING with a title of "###".
         $dividers = $DB->get_records_sql(
@@ -669,10 +636,10 @@ function xmldb_theme_boost_union_upgrade($oldversion) {
         echo $OUTPUT->notification($message, 'info');
 
         // Savepoint reached.
-        upgrade_plugin_savepoint(true, 2025041416, 'theme', 'boost_union');
+        upgrade_plugin_savepoint(true, 2024100745, 'theme', 'boost_union');
     }
 
-    if ($oldversion < 2025041419) {
+    if ($oldversion < 2024100747) {
         // The old smart menu item icon picker stored the value '0' for no icon.
         // We need to update these to an empty string to match the new icon picker behavior.
         // Find all menu items where menuicon is '0' and update them to have an empty string.
@@ -681,10 +648,10 @@ function xmldb_theme_boost_union_upgrade($oldversion) {
                 WHERE menuicon = '0'");
 
         // Savepoint reached.
-        upgrade_plugin_savepoint(true, 2025041419, 'theme', 'boost_union');
+        upgrade_plugin_savepoint(true, 2024100747, 'theme', 'boost_union');
     }
 
-    if ($oldversion < 2025041428) {
+    if ($oldversion < 2024100756) {
         // Define table theme_boost_union_menuitems to be altered.
         $table = new xmldb_table('theme_boost_union_menuitems');
 
@@ -697,12 +664,12 @@ function xmldb_theme_boost_union_upgrade($oldversion) {
         }
 
         // Savepoint reached.
-        upgrade_plugin_savepoint(true, 2025041428, 'theme', 'boost_union');
+        upgrade_plugin_savepoint(true, 2024100756, 'theme', 'boost_union');
     }
 
-    if ($oldversion < 2025041429) {
+    if ($oldversion < 2024100757) {
         // Fix the sortorder field definition in theme_boost_union_snippets table.
-        // The field was incorrectly created as NOTNULL in version 2025041415,
+        // The field was incorrectly created as NOTNULL in version 2024100744,
         // but should be nullable to match the install.xml definition.
         $table = new xmldb_table('theme_boost_union_snippets');
         $field = new xmldb_field('sortorder', XMLDB_TYPE_INTEGER, '18', null, null, null, null);
@@ -713,196 +680,7 @@ function xmldb_theme_boost_union_upgrade($oldversion) {
         }
 
         // Savepoint reached.
-        upgrade_plugin_savepoint(true, 2025041429, 'theme', 'boost_union');
-    }
-
-    if ($oldversion < 2025100600) {
-        // Remove the timelinetintenabled setting from Boost Union.
-        unset_config('timelinetintenabled', 'theme_boost_union');
-
-        // Remove the upcomingeventstintenabled setting from Boost Union.
-        unset_config('upcomingeventstintenabled', 'theme_boost_union');
-
-        // Boost_union savepoint reached.
-        upgrade_plugin_savepoint(true, 2025100600, 'theme', 'boost_union');
-    }
-
-    if ($oldversion < 2025100601) {
-        // Rename slide and tile background image fileareas to match config setting names.
-        // Config stays: slide1backgroundimage, slide2backgroundimage, etc.
-        // Old filearea: slidebackgroundimage1, slidebackgroundimage2, etc.
-        // New filearea: slide1backgroundimage, slide2backgroundimage, etc.
-        // Same applies for tile background images.
-        // This makes filearea names consistent with config names and simplifies the code.
-
-        // Get file storage.
-        $fs = get_file_storage();
-
-        // Define migration configurations: [type => [prefix, count]].
-        $migrations = [
-            'slide' => THEME_BOOST_UNION_SETTING_SLIDES_COUNT,
-            'tile' => THEME_BOOST_UNION_SETTING_ADVERTISEMENTTILES_COUNT,
-        ];
-
-        // Migrate files for each type.
-        foreach ($migrations as $type => $count) {
-            for ($i = 1; $i <= $count; $i++) {
-                $oldfilearea = $type . 'backgroundimage' . $i;
-                $newfilearea = $type . $i . 'backgroundimage';
-
-                // Get all files in the old filearea (excluding directories).
-                $oldfiles = $fs->get_area_files(
-                    context_system::instance()->id,
-                    'theme_boost_union',
-                    $oldfilearea,
-                    false,
-                    'itemid, filepath, filename',
-                    false
-                );
-
-                // Move each file to the new filearea using File API.
-                foreach ($oldfiles as $oldfile) {
-                    // Create file record for new location.
-                    $filerecord = [
-                        'contextid' => $oldfile->get_contextid(),
-                        'component' => $oldfile->get_component(),
-                        'filearea' => $newfilearea,
-                        'itemid' => $oldfile->get_itemid(),
-                        'filepath' => $oldfile->get_filepath(),
-                        'filename' => $oldfile->get_filename(),
-                    ];
-
-                    // Create file in new filearea (File API handles pathnamehash automatically).
-                    if (
-                        !$fs->file_exists(
-                            $filerecord['contextid'],
-                            $filerecord['component'],
-                            $filerecord['filearea'],
-                            $filerecord['itemid'],
-                            $filerecord['filepath'],
-                            $filerecord['filename']
-                        )
-                    ) {
-                        $fs->create_file_from_storedfile($filerecord, $oldfile);
-                    }
-
-                    // Delete the old file.
-                    $oldfile->delete();
-                }
-            }
-        }
-
-        // Savepoint reached.
-        upgrade_plugin_savepoint(true, 2025100601, 'theme', 'boost_union');
-    }
-
-    if ($oldversion < 2025100605) {
-        // Define table theme_boost_union_course to be created.
-        $table = new xmldb_table('theme_boost_union_course');
-
-        // Adding fields to table.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('name', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('value', XMLDB_TYPE_TEXT, null, null, null, null, null);
-
-        // Adding keys to table.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-        $table->add_key('courseid', XMLDB_KEY_FOREIGN, ['courseid'], 'course', ['id']);
-
-        // Adding indexes for performance.
-        $table->add_index('courseidname', XMLDB_INDEX_UNIQUE, ['courseid', 'name']);
-
-        // Create the table if it doesn't exist.
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-
-        // Additionally, rename multiple course header settings.
-        $oldvalue = get_config('theme_boost_union', 'courseheaderimageenabled');
-        if ($oldvalue !== false) {
-            set_config('courseheaderenabled', $oldvalue, 'theme_boost_union');
-            unset_config('courseheaderimageenabled', 'theme_boost_union');
-        }
-        $oldvalue = get_config('theme_boost_union', 'courseheaderimagelayout');
-        if ($oldvalue !== false) {
-            set_config('courseheaderlayout', $oldvalue, 'theme_boost_union');
-            unset_config('courseheaderimagelayout', 'theme_boost_union');
-        }
-        $oldvalue = get_config('theme_boost_union', 'courseheaderimageheight');
-        if ($oldvalue !== false) {
-            set_config('courseheaderheight', $oldvalue, 'theme_boost_union');
-            unset_config('courseheaderimageheight', 'theme_boost_union');
-        }
-        $oldvalue = get_config('theme_boost_union', 'courseheaderimagefallback');
-        if ($oldvalue !== false) {
-            set_config('courseheaderimageglobal', $oldvalue, 'theme_boost_union');
-            unset_config('courseheaderimagefallback', 'theme_boost_union');
-        }
-
-        // Move any existing file in the courseheaderimagefallback filearea to the new courseheaderimageglobal filearea.
-        // Get file storage.
-        $fs = get_file_storage();
-
-        // Get all files in the old filearea (excluding directories).
-        $oldfiles = $fs->get_area_files(
-            context_system::instance()->id,
-            'theme_boost_union',
-            'courseheaderimagefallback',
-            false,
-            'itemid, filepath, filename',
-            false
-        );
-
-        // Move each file to the new filearea using File API.
-        foreach ($oldfiles as $oldfile) {
-            // Create file record for new location.
-            $filerecord = [
-                'contextid' => $oldfile->get_contextid(),
-                'component' => $oldfile->get_component(),
-                'filearea' => 'courseheaderimageglobal',
-                'itemid' => $oldfile->get_itemid(),
-                'filepath' => $oldfile->get_filepath(),
-                'filename' => $oldfile->get_filename(),
-            ];
-
-            // Create file in new filearea (File API handles pathnamehash automatically).
-            if (
-                !$fs->file_exists(
-                    $filerecord['contextid'],
-                    $filerecord['component'],
-                    $filerecord['filearea'],
-                    $filerecord['itemid'],
-                    $filerecord['filepath'],
-                    $filerecord['filename']
-                )
-            ) {
-                $fs->create_file_from_storedfile($filerecord, $oldfile);
-            }
-
-            // Delete the old file.
-            $oldfile->delete();
-        }
-
-        // Boost Union savepoint reached.
-        upgrade_plugin_savepoint(true, 2025100605, 'theme', 'boost_union');
-    }
-
-    if ($oldversion < 2025100606) {
-        // Change course header layout settings from stackeddark/stackedlight to unified stacked layout.
-        // The old layouts had the text style embedded in the layout choice.
-        // Now we have a separate text style setting, so we need to split the old setting values.
-        $oldlayout = get_config('theme_boost_union', 'courseheaderlayout');
-        if ($oldlayout === 'stackeddark') {
-            set_config('courseheaderlayout', THEME_BOOST_UNION_SETTING_COURSEHEADERLAYOUT_STACKED, 'theme_boost_union');
-            set_config('courseheadertextonimagestyle', THEME_BOOST_UNION_SETTING_CONTENTSTYLE_LIGHTSHADOW, 'theme_boost_union');
-        } else if ($oldlayout === 'stackedlight') {
-            set_config('courseheaderlayout', THEME_BOOST_UNION_SETTING_COURSEHEADERLAYOUT_STACKED, 'theme_boost_union');
-            set_config('courseheadertextonimagestyle', THEME_BOOST_UNION_SETTING_CONTENTSTYLE_DARKSHADOW, 'theme_boost_union');
-        }
-
-        // Boost Union savepoint reached.
-        upgrade_plugin_savepoint(true, 2025100606, 'theme', 'boost_union');
+        upgrade_plugin_savepoint(true, 2024100757, 'theme', 'boost_union');
     }
 
     // Load the builtin SCSS snippets into the database.

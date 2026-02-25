@@ -138,7 +138,7 @@ $intro = new \core\output\notification(
     \core\output\notification::NOTIFY_INFO
 );
 $intro->set_show_closebutton(false);
-$intro->set_extra_classes(['mb-5', 'alert-light']);
+$intro->set_extra_classes(['mb-5', 'alert-dark']);
 echo $OUTPUT->render($intro);
 
 // Prepare 'Create flavours' button.

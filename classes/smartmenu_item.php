@@ -1085,7 +1085,7 @@ class smartmenu_item {
                     $params += ['now_' . $key => time()];
                     break;
                 case self::RANGE_PRESENT:
-                    $sql[] = "(c.startdate <= :startdate_$key AND ( c.enddate = 0 OR c.enddate > :enddate_$key) )";
+                    $sql[] = "(c.startdate < :startdate_$key AND ( c.enddate = 0 OR c.enddate > :enddate_$key) )";
                     $params += ['enddate_' . $key => time(), 'startdate_' . $key => time()];
                     break;
                 case self::RANGE_FUTURE:
@@ -1568,7 +1568,7 @@ class smartmenu_item {
             // Fetch no-selection string.
             Str.get_string("noselection", "form").then((noSelection) => {
                 dropdowns.forEach((elem) => {
-                    elem.classList.add("form-select");
+                    elem.classList.add("custom-select");
                     // Change the field type to autcomplete, it fix the suggestion box alignment.
                     elem.parentNode.setAttribute("data-fieldtype", "autocomplete");
                     Auto.enhance(elem, "", false, "", false, true, noSelection);

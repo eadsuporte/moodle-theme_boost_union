@@ -56,7 +56,7 @@ class course_renderer extends \core_course_renderer {
                     isset($courselistinghowpopup) &&
                     $courselistinghowpopup == THEME_BOOST_UNION_SETTING_SELECT_YES
             ) {
-                $page->requires->js_call_amd('theme_boost_union/coursedetailsmodal', 'init');
+                $page->requires->js_call_amd('theme_boost_union/courselistingdetailsmodal', 'init');
             }
             $detailsmodalchecked = true;
         }
@@ -182,7 +182,7 @@ class course_renderer extends \core_course_renderer {
             $content .= html_writer::start_tag(
                 'div',
                 [
-                        'class' => 'row g-0 theme_boost_union-courselisting theme_boost_union-courselisting-card',
+                        'class' => 'row no-gutters theme_boost_union-courselisting theme_boost_union-courselisting-card',
                         'role' => 'list',
                     ]
             );
@@ -238,9 +238,9 @@ class course_renderer extends \core_course_renderer {
                         $content .= html_writer::start_tag(
                             'div',
                             ['class' =>
-                                        'card-grid row g-0 row-cols-1 row-cols-sm-' . $maxcolssm . ' row-cols-lg-' . $maxcolslg,
-                                  'role' => 'list',
-                                ]
+                                'card-grid row no-gutters row-cols-1 row-cols-sm-' . $maxcolssm . ' row-cols-lg-' . $maxcolslg,
+                                'role' => 'list',
+                            ]
                         );
                         $cardgridstarted = true;
                     }
@@ -298,7 +298,7 @@ class course_renderer extends \core_course_renderer {
                     // Show the category heading as sticky header, if necessary.
                     if ($showstickyheaders == true) {
                         // Start the category list.
-                        $content .= html_writer::start_div('row g-0 categorylist');
+                        $content .= html_writer::start_div('row no-gutters categorylist');
 
                         $content .= html_writer::start_tag(
                             'div',
@@ -418,10 +418,6 @@ class course_renderer extends \core_course_renderer {
         if ($skeleton == null) {
             $skeleton = [];
 
-            // Note: The following code is more or less duplicated in core_renderer::full_header().
-            // This was done on purpose as it is not a 100% copy and creating another helper function would not have improved
-            // the code quality much.
-
             // Enable course image, if configured.
             if (get_config('theme_boost_union', 'courselistinghowimage') == THEME_BOOST_UNION_SETTING_SELECT_YES) {
                 $skeleton['showcourseimage'] = true;
@@ -524,10 +520,6 @@ class course_renderer extends \core_course_renderer {
             $templatedata['courseimage'] = $courseutil->get_courseimage();
         }
 
-        // Note: The following code is more or less duplicated in core_renderer::full_header().
-        // This was done on purpose as it is not a 100% copy and creating another helper function would not have improved
-        // the code quality much.
-
         // Amend course contacts, if enabled.
         if ($templatedata['showcoursecontacts'] || $templatedata['showcoursepopup']) {
             $templatedata['contacts'] = $courseutil->get_course_contacts();
@@ -552,7 +544,7 @@ class course_renderer extends \core_course_renderer {
 
         // Amend custom fields, if enabled.
         if ($templatedata['showcoursefields'] || $templatedata['showcoursepopup']) {
-            $templatedata['customfields'] = $courseutil->get_custom_fields('listing');
+            $templatedata['customfields'] = $courseutil->get_custom_fields();
             $templatedata['hascustomfields'] = ($templatedata['customfields'] != false);
         }
 
@@ -699,7 +691,7 @@ class course_renderer extends \core_course_renderer {
         if ($chelper->get_show_courses() == self::COURSECAT_SHOW_COURSES_COUNT
                 && ($coursescount = $coursecat->get_courses_count())) {
             $categoryname .= html_writer::tag('span', $coursescount,
-                    array('title' => get_string('numberofcourses'), 'class' => 'numberofcourse badge rounded-pill bg-secondary text-black ms-2'));
+                    array('title' => get_string('numberofcourses'), 'class' => 'numberofcourse badge badge-pill badge-secondary ms-2'));
         }
         $content .= html_writer::start_tag('div', array('class' => 'info'));
 

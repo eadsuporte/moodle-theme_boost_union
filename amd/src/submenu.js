@@ -24,18 +24,18 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import Carousel from 'theme_boost/bootstrap/carousel';
+import $ from 'jquery';
 import {space, enter} from 'core/key_codes';
 
 /**
  * Smartmenu submenu constants.
  */
 const Selectors = {
-    smartMenuCarousel: '[data-bs-toggle="smartmenu-carousel"]',
+    smartMenuCarousel: '[data-toggle="smartmenu-carousel"]',
     smartMenuCarouselClass: '.theme-boost-union-smartmenu-carousel',
-    smartMenuCarouselItem: '[data-bs-toggle="smartmenu-carousel"] .carousel-item',
-    smartMenuCarouselItemActive: '[data-bs-toggle="smartmenu-carousel"] .carousel-item.active',
-    smartMenuCarouselNavigationLink: '[data-bs-toggle="smartmenu-carousel"] .carousel-navigation-link',
+    smartMenuCarouselItem: '[data-toggle="smartmenu-carousel"] .carousel-item',
+    smartMenuCarouselItemActive: '[data-toggle="smartmenu-carousel"] .carousel-item.active',
+    smartMenuCarouselNavigationLink: '[data-toggle="smartmenu-carousel"] .carousel-navigation-link',
     smartMenuDropDownItems: 'ul.dropdown-menu li.nav-item',
     dropDownMenu: '.dropdown-menu',
     roleMenu: '[role="menu"]',
@@ -54,8 +54,6 @@ const Selectors = {
  * @param {HTMLElement} smartMenu
  */
 const registerEventListeners = (smartMenu) => {
-
-    const smartMenuCarousel = smartMenu.querySelector(Selectors.smartMenuCarousel);
 
     // Handle click events in the smart menu.
     smartMenu.addEventListener('click', (e) => {
@@ -90,28 +88,24 @@ const registerEventListeners = (smartMenu) => {
         // smart menu. Therefore, we need to prevent the propagation of this event and then manually call the
         // carousel transition.
         e.stopPropagation();
-        e.preventDefault();
-
         // The id of the targeted carousel item.
         const targetedCarouselItemId = e.target.dataset.carouselTargetId;
         const targetedCarouselItem = smartMenu.querySelector('#' + targetedCarouselItemId);
         // Get the position (index) of the targeted carousel item within the parent container element.
         const index = Array.from(targetedCarouselItem.parentNode.children).indexOf(targetedCarouselItem);
         // Navigate to the targeted carousel item.
-        Carousel.getOrCreateInstance(smartMenuCarousel).to(index);
-
+        $(smartMenu.querySelector(Selectors.smartMenuCarousel)).carousel(index);
     };
 
     // Handle the 'hide.bs.dropdown' event (Fired when the dropdown menu is being closed).
-    smartMenu.addEventListener('hide.bs.dropdown', () => {
+    $(Selectors.smartMenu).on('hide.bs.dropdown', () => {
         // Reset the state once the smart menu dropdown is closed and return back to the first (main) carousel item
         // if necessary.
-        Carousel.getOrCreateInstance(smartMenuCarousel).to(0);
-
+        $(smartMenu.querySelector(Selectors.smartMenuCarousel)).carousel(0);
     });
 
     // Handle the 'slid.bs.carousel' event (Fired when the carousel has completed its slide transition).
-    smartMenuCarousel?.addEventListener('slid.bs.carousel', () => {
+    $(Selectors.smartMenuCarousel).on('slid.bs.carousel', () => {
         const activeCarouselItem = smartMenu.querySelector(Selectors.smartMenuCarouselItemActive);
         // Set the focus on the newly activated carousel item.
         if (activeCarouselItem !== null) {
@@ -185,8 +179,8 @@ const moreMenuCardItem = () => {
         // Parent moremenu.
         var parentMenu = moreMenu.parentNode;
         // Hide all opened card menus on dropdown shown.
-        parentMenu.addEventListener('shown.bs.dropdown', hideOpenMenus);
-        parentMenu.addEventListener('hidden.bs.dropdown', hideOpenMenus);
+        $(parentMenu).on('shown.bs.dropdown', hideOpenMenus);
+        $(parentMenu).on('hidden.bs.dropdown', hideOpenMenus);
     };
 
     /**

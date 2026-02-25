@@ -45,21 +45,17 @@ if (
 // Compose the navbar color classes based on the navbarcolor setting.
 switch ($navbarcolorsetting) {
     case THEME_BOOST_UNION_SETTING_NAVBARCOLOR_DARK:
-        $templatecontext['navbarcolorclasses'] = 'bg-dark';
-        $templatecontext['databstheme'] = 'dark';
+        $templatecontext['navbarcolorclasses'] = 'navbar-dark bg-dark';
         break;
     case THEME_BOOST_UNION_SETTING_NAVBARCOLOR_PRIMARYLIGHT:
-        $templatecontext['navbarcolorclasses'] = 'bg-primary';
-        $templatecontext['databstheme'] = 'light';
+        $templatecontext['navbarcolorclasses'] = 'navbar-light bg-primary';
         break;
     case THEME_BOOST_UNION_SETTING_NAVBARCOLOR_PRIMARYDARK:
-        $templatecontext['navbarcolorclasses'] = 'bg-primary';
-        $templatecontext['databstheme'] = 'dark';
+        $templatecontext['navbarcolorclasses'] = 'navbar-dark bg-primary';
         break;
     case THEME_BOOST_UNION_SETTING_NAVBARCOLOR_LIGHT:
     default:
-        $templatecontext['navbarcolorclasses'] = 'bg-body';
-        $templatecontext['databstheme'] = '';
+        $templatecontext['navbarcolorclasses'] = 'navbar-light bg-white';
         break;
 }
 

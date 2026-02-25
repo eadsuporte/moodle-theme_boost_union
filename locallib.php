@@ -22,8 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use theme_boost_union\coursesettings;
-
 /**
  * Get all activity purposes which are available in the current Moodle version.
  * This function returns all activity purposes, but excludes MOD_PURPOSE_INTERFACE for Moodle 5.2+
@@ -742,7 +740,7 @@ function theme_boost_union_get_loginbackgroundimage_files() {
 
 /**
  *
- * Get the advertisement tile's background image URL from the filearea 'tile'.tileno.'backgroundimage'.
+ * Get the advertisement tile's background image URL from the filearea 'tilebackgroundimage'.tileno.
  *
  * Note:
  * Calling this function for each tile separately is maybe not performant. Originally it was planed to put
@@ -775,7 +773,7 @@ function theme_boost_union_get_urloftilebackgroundimage($tileno) {
         $files = $fs->get_area_files(
             $systemcontext->id,
             'theme_boost_union',
-            'tile' . $tileno . 'backgroundimage',
+            'tilebackgroundimage' . $tileno,
             false,
             'itemid',
             false
@@ -833,7 +831,7 @@ function theme_boost_union_get_urlofslidebackgroundimage($slideno) {
         $files = $fs->get_area_files(
             $systemcontext->id,
             'theme_boost_union',
-            'slide' . $slideno . 'backgroundimage',
+            'slidebackgroundimage' . $slideno,
             false,
             'itemid',
             false
@@ -1221,7 +1219,7 @@ function theme_boost_union_get_externaladminpage_heading() {
 
 /**
  * Helper function which returns the course header image url, picking the current course from the course settings
- * or the global image from the theme.
+ * or the fallback image from the theme.
  * If no course header image can should be shown for the current course, the function returns null.
  *
  * @return null | string
@@ -1235,80 +1233,16 @@ function theme_boost_union_get_course_header_image_url() {
         return null;
     }
 
-    // Check if this course format is excluded from the course header feature.
-    if (isset($PAGE->course->format) && coursesettings::is_courseformat_excluded_from_courseheaderfeature($PAGE->course->format)) {
-        return null;
-    }
+    // Get the course image.
+    $courseimage = \core_course\external\course_summary_exporter::get_course_image($PAGE->course);
 
-    // Get the configured course header image source.
-    $courseheaderimagesource = get_config('theme_boost_union', 'courseheaderimagesource');
+    // If the course has a course image.
+    if ($courseimage) {
+        // Then return it directly.
+        return $courseimage;
 
-    // Handle the different image source options.
-    switch ($courseheaderimagesource) {
-        case THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_COURSEPLUSGLOBAL:
-            // Try course overview files first, then global fallback.
-            $courseimage = \core_course\external\course_summary_exporter::get_course_image($PAGE->course);
-            if ($courseimage) {
-                return $courseimage;
-            }
-            // Fall through to global image.
-            return theme_boost_union_get_global_course_header_image_url();
-
-        case THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_COURSENOGLOBAL:
-            // Only course image, no fallback.
-            return \core_course\external\course_summary_exporter::get_course_image($PAGE->course);
-
-        case THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_DEDICATEDPLUSGLOBAL:
-            // Try dedicated course images first, then global fallback.
-            $dedicatedimage = theme_boost_union_get_dedicated_course_header_image_url($PAGE->course->id);
-            if ($dedicatedimage) {
-                return $dedicatedimage;
-            }
-            // Fall through to global image.
-            return theme_boost_union_get_global_course_header_image_url();
-
-        case THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_DEDICATEDNOGLOBAL:
-            // Only dedicated course images, no fallback.
-            return theme_boost_union_get_dedicated_course_header_image_url($PAGE->course->id);
-
-        case THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_DEDICATEDPLUSCOURSEPLUSGLOBAL:
-            // Try dedicated course images first.
-            $dedicatedimage = theme_boost_union_get_dedicated_course_header_image_url($PAGE->course->id);
-            if ($dedicatedimage) {
-                return $dedicatedimage;
-            }
-            // Then try course overview files.
-            $courseimage = \core_course\external\course_summary_exporter::get_course_image($PAGE->course);
-            if ($courseimage) {
-                return $courseimage;
-            }
-            // Fall through to global image.
-            return theme_boost_union_get_global_course_header_image_url();
-
-        case THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_DEDICATEDPLUSCOURSENOGLOBAL:
-            // Try dedicated course images first.
-            $dedicatedimage = theme_boost_union_get_dedicated_course_header_image_url($PAGE->course->id);
-            if ($dedicatedimage) {
-                return $dedicatedimage;
-            }
-            // Then try course overview files, no fallback.
-            return \core_course\external\course_summary_exporter::get_course_image($PAGE->course);
-
-        case THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_GLOBAL:
-        default:
-            // Only global image.
-            return theme_boost_union_get_global_course_header_image_url();
-    }
-}
-
-/**
- * Helper function to get the global course header image URL.
- *
- * @return core\url|null The URL to the global course header image or null if none is configured.
- */
-function theme_boost_union_get_global_course_header_image_url() {
-    // If a global image is configured.
-    if (get_config('theme_boost_union', 'courseheaderimageglobal')) {
+        // Otherwise, if a fallback image is configured.
+    } else if (get_config('theme_boost_union', 'courseheaderimagefallback')) {
         // Get the system context.
         $systemcontext = \context_system::instance();
 
@@ -1319,7 +1253,7 @@ function theme_boost_union_get_global_course_header_image_url() {
         $files = $fs->get_area_files(
             $systemcontext->id,
             'theme_boost_union',
-            'courseheaderimageglobal',
+            'courseheaderimagefallback',
             false,
             'itemid',
             false
@@ -1328,44 +1262,7 @@ function theme_boost_union_get_global_course_header_image_url() {
         // Just pick the first file - we are sure that there is just one file.
         $file = reset($files);
 
-        // If we have a file, build and return the image URL.
-        if ($file) {
-            return core\url::make_pluginfile_url(
-                $file->get_contextid(),
-                $file->get_component(),
-                $file->get_filearea(),
-                $file->get_itemid(),
-                $file->get_filepath(),
-                $file->get_filename()
-            );
-        }
-    }
-
-    // As no picture was found, return null.
-    return null;
-}
-
-/**
- * Helper function to get the dedicated course header image URL for a specific course.
- *
- * @param int $courseid The course ID.
- * @return core\url|null The URL to the dedicated course header image or null if none is configured.
- */
-function theme_boost_union_get_dedicated_course_header_image_url($courseid) {
-    // Get the course context.
-    $coursecontext = \context_course::instance($courseid);
-
-    // Get filearea.
-    $fs = get_file_storage();
-
-    // Get all files from the dedicated course header image filearea.
-    $files = $fs->get_area_files($coursecontext->id, 'theme_boost_union', 'courseheaderimage', 0, 'itemid', false);
-
-    // Just pick the first file - we are sure that there is just one file per course.
-    $file = reset($files);
-
-    // If we have a file, build and return the image URL.
-    if ($file) {
+        // Build and return the image URL.
         return core\url::make_pluginfile_url(
             $file->get_contextid(),
             $file->get_component(),
@@ -1732,6 +1629,26 @@ function theme_boost_union_get_scss_for_activity_icon_purpose($theme) {
             $defaultpurpose = MOD_PURPOSE_OTHER;
         }
 
+        // Compose selectors for blocks.
+        $blocksscss = [];
+        // If the admin wanted us to tint the timeline block as well.
+        if (get_config('theme_boost_union', 'timelinetintenabled') == THEME_BOOST_UNION_SETTING_SELECT_YES) {
+            $blocksscss[] = '.block_timeline .theme-boost-union-mod_' . $modname . '.activityiconcontainer img';
+        }
+        // If the admin wanted us to tint the upcoming events block as well.
+        if (get_config('theme_boost_union', 'upcomingeventstintenabled') == THEME_BOOST_UNION_SETTING_SELECT_YES) {
+            $blocksscss[] = '.block_calendar_upcoming .theme-boost-union-mod_' . $modname . '.activityiconcontainer img';
+        }
+        // If the admin wanted us to tint the recently accessed items block as well.
+        if (get_config('theme_boost_union', 'recentlyaccesseditemstintenabled') == THEME_BOOST_UNION_SETTING_SELECT_YES) {
+            $blocksscss[] = '.block_recentlyaccesseditems .theme-boost-union-' . $modname . '.activityiconcontainer img';
+        }
+        // If the admin wanted us to tint the activities block as well.
+        if (get_config('theme_boost_union', 'activitiestintenabled') == THEME_BOOST_UNION_SETTING_SELECT_YES) {
+            $blocksscss[] = '.block_activity_modules .content .icon[title="' . $modinfo . '"]';
+        }
+        $blocksscss = implode(', ', $blocksscss);
+
         // If the activity purpose setting is set and differs from the activity's default purpose.
         $activitypurpose = get_config('theme_boost_union', 'activitypurpose' . $modname);
         if ($activitypurpose && $activitypurpose != $defaultpurpose) {
@@ -1744,18 +1661,35 @@ function theme_boost_union_get_scss_for_activity_icon_purpose($theme) {
             } else {
                 $scss .= '.modchoosercontainer .modicon_' . $modname . '.activityiconcontainer img,';
             }
-            $scss .= '#page-header .modicon_' . $modname . '.activityiconcontainer img,';
-            $scss .= '#page-course-overview #' . $modname . '_overview_title .activityiconcontainer img';
-            $scss .= '{';
-            // If the purpose is now different than 'other', change the filter to the new color (and force it with important).
+            $scss .= '#page-header .modicon_' . $modname . '.activityiconcontainer img';
+            // Add CSS for the configured blocks.
+            if (strlen($blocksscss) > 0) {
+                $scss .= ', ' . $blocksscss;
+            }
+            $scss .= ' {';
+            // If the purpose is now different than 'other', change the filter to the new color.
             if ($activitypurpose != MOD_PURPOSE_OTHER) {
-                $scss .= '@include recolor-icon-important(map-get($activity-icon-colors, "' . $activitypurpose . '"), 1);';
+                $scss .= 'filter: var(--activity' . $activitypurpose . ') !important;';
 
-                // Otherwise, the filter is removed.
+                // Otherwise, the filter is removed (as there is no '--activityother' variable).
             } else {
                 $scss .= 'filter: none !important;';
             }
             $scss .= '}';
+
+            // Otherwise, if the purpose is unchanged.
+        } else {
+            // Add CSS for the configured blocks.
+            if (strlen($blocksscss) > 0) {
+                $scss .= $blocksscss . '{ ';
+
+                // If the purpose is now different than 'other', set the filter to tint the icon.
+                if ($activitypurpose != MOD_PURPOSE_OTHER) {
+                    $scss .= 'filter: var(--activity' . $defaultpurpose . ') !important;';
+                }
+
+                $scss .= '}';
+            }
         }
     }
     return $scss;
@@ -2703,7 +2637,7 @@ function theme_boost_union_get_accessibility_support_skip_link() {
             $supporttitle = theme_boost_union_get_accessibility_srlinktitle();
             $output .= \core\output\html_writer::link($supporturl, $supporttitle, [
                 'id' => 'access-support-form-sr-link',
-                'class' => 'visually-hidden visually-hidden-focusable',
+                'class' => 'sr-only sr-only-focusable',
             ]);
         }
     }

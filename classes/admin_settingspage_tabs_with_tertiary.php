@@ -234,11 +234,8 @@ class admin_settingspage_tabs_with_tertiary extends \theme_boost_admin_settingsp
             // Create select menu.
             $tertiarymenu = new \core\output\select_menu('boostuniontertiary', $selectoptions, $this->selectoractiveurl);
 
-            // Add visually-hidden label to the select menu.
-            $tertiarymenu->set_label(
-                get_string('tertiarysettings', 'theme_boost_union', null, true),
-                ['class' => 'visually-hidden']
-            );
+            // Add SR-only label to the select menu.
+            $tertiarymenu->set_label(get_string('tertiarysettings', 'theme_boost_union', null, true), ['class' => 'sr-only']);
 
             // Build the tertiary navigation select menu.
             $navigation = \html_writer::tag(

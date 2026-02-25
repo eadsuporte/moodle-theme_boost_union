@@ -22,8 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use theme_boost_union\coursesettings;
-
 defined('MOODLE_INTERNAL') || die();
 
 // Force auto-loading of some Boost Union classes to fix rare edge cases (during plugin updates) when the classes are
@@ -177,21 +175,6 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
         // Prepare regular expression for checking if the value is a percent number (from 0% to 100%) or a pixel number
         // (with 2 or 3 digits) or a viewport width number (from 0 to 100). Additionally the field can be left blank.
         $smallwidthoremptyregex = '/^((\d{1,2}|100)%)|((\d{1,2}|100)vw)|(\d{2,3}px)|(^(?!.*\S))$/';
-
-        // Prepare custom course fields options.
-        $coursehandler = \core_course\customfield\course_handler::create();
-        $coursefields = $coursehandler->get_fields();
-        $coursefieldsoptionsarray = [];
-        $coursefieldsoptionsdefault = [];
-        // If there are existing fields.
-        if (count($coursefields) > 0) {
-            // Get all field details.
-            foreach ($coursefields as $field) {
-                $fieldid = $field->get('id');
-                $coursefieldsoptionsarray[$fieldid] = $field->get('name');
-                $coursefieldsoptionsdefault[$fieldid] = 1; // By default, all fields are selected.
-            }
-        }
 
         // Create Look settings page with tabs and tertiary navigation
         // (and allow users with the theme/boost_union:configure capability to access it).
@@ -431,6 +414,15 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
         $title = get_string('coursecontentmaxwidthsetting', 'theme_boost_union', null, true);
         $description = get_string('coursecontentmaxwidthsetting_desc', 'theme_boost_union', null, true);
         $default = '830px';
+        $setting = new admin_setting_configtext($name, $title, $description, $default, $widthregex, 6);
+        $setting->set_updatedcallback('theme_reset_all_caches');
+        $tab->add($setting);
+
+        // Setting: Medium content max width.
+        $name = 'theme_boost_union/mediumcontentmaxwidth';
+        $title = get_string('mediumcontentmaxwidthsetting', 'theme_boost_union', null, true);
+        $description = get_string('mediumcontentmaxwidthsetting_desc', 'theme_boost_union', null, true);
+        $default = '1120px';
         $setting = new admin_setting_configtext($name, $title, $description, $default, $widthregex, 6);
         $setting->set_updatedcallback('theme_reset_all_caches');
         $tab->add($setting);
@@ -723,11 +715,24 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
             $tab->add($setting);
         }
 
+        // Setting: Activity icon color fidelity.
+        $name = 'theme_boost_union/activityiconcolorfidelity';
+        $title = get_string('activityiconcolorfidelitysetting', 'theme_boost_union', null, true);
+        $description = get_string('activityiconcolorfidelitysetting_desc', 'theme_boost_union', null, true);
+        $activityiconcolorfidelityoptions = [
+                1 => get_string('activityiconcolorfidelity_oneshot', 'theme_boost_union'),
+                10 => get_string('activityiconcolorfidelity_sometries', 'theme_boost_union'),
+                100 => get_string('activityiconcolorfidelity_detailled', 'theme_boost_union'),
+                500 => get_string('activityiconcolorfidelity_insane', 'theme_boost_union'),
+            ];
+        $setting = new admin_setting_configselect($name, $title, $description, 1, $activityiconcolorfidelityoptions);
+        $setting->set_updatedcallback('theme_reset_all_caches');
+        $tab->add($setting);
+
         // Heading: Activity icons purpose.
         $name = 'theme_boost_union/activitypurposeheading';
         $title = get_string('activitypurposeheading', 'theme_boost_union', null, true);
         $description = get_string('activitypurposeheading_desc', 'theme_boost_union', null, true) . '<br /><br />' .
-                get_string('activitypurposeheadingpleasenote', 'theme_boost_union', null, true) . '<br /><br />' .
                 get_string(
                     'activitypurposeheadingtechnote',
                     'theme_boost_union',
@@ -1392,19 +1397,24 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
         );
 
         // Setting: Select course fields to be shown in the course listing.
+        // Prepare course fields options.
+        $coursehandler = \core_course\customfield\course_handler::create();
+        $coursefields = $coursehandler->get_fields();
         // If there are existing fields.
-        if (count($coursefieldsoptionsarray) > 0) {
+        if (count($coursefields) > 0) {
+            // Get all field details.
+            $fieldsarray = [];
+            $fieldsdefault = [];
+            foreach ($coursefields as $field) {
+                $fieldid = $field->get('id');
+                $fieldsarray[$fieldid] = $field->get('name');
+                $fieldsdefault[$fieldid] = 1; // By default, all fields are selected.
+            }
             // Build the setting.
             $name = 'theme_boost_union/courselistingselectfields';
             $title = get_string('courselistingselectfields', 'theme_boost_union', null, true);
             $description = get_string('courselistingselectfields_desc', 'theme_boost_union', null, true);
-            $setting = new admin_setting_configmulticheckbox(
-                $name,
-                $title,
-                $description,
-                $coursefieldsoptionsdefault,
-                $coursefieldsoptionsarray
-            );
+            $setting = new admin_setting_configmulticheckbox($name, $title, $description, $fieldsdefault, $fieldsarray);
             $tab->add($setting);
             $page->hide_if(
                 'theme_boost_union/courselistingselectfields',
@@ -1445,7 +1455,7 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
             );
         }
 
-        // Setting: Style course fields in the course listing.
+        // Setting: Show course fields in the course listing.
         $name = 'theme_boost_union/courselistingstylefields';
         $title = get_string('courselistingstylefields', 'theme_boost_union');
         $description = get_string('courselistingstylefields_desc', 'theme_boost_union');
@@ -1530,6 +1540,72 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
         $page->add($tab);
 
 
+        // Tab: Blocks.
+        $tab = new admin_settingpage(
+            'theme_boost_union_look_blocks',
+            get_string('blockstab', 'theme_boost_union', null, true)
+        );
+
+        // Heading: Timeline block.
+        $name = 'theme_boost_union/timelineheading';
+        $title = get_string('timelineheading', 'theme_boost_union', null, true);
+        $setting = new admin_setting_heading($name, $title, null);
+        $tab->add($setting);
+
+        // Setting: Tint activity icons in the timeline block.
+        $name = 'theme_boost_union/timelinetintenabled';
+        $title = get_string('timelinetintenabled', 'theme_boost_union', null, true);
+        $description = get_string('timelinetintenabled_desc', 'theme_boost_union', null, true);
+        $setting = new admin_setting_configselect($name, $title, $description, THEME_BOOST_UNION_SETTING_SELECT_NO, $yesnooption);
+        $setting->set_updatedcallback('theme_reset_all_caches');
+        $tab->add($setting);
+
+        // Heading: Upcoming events block.
+        $name = 'theme_boost_union/upcomingeventsheading';
+        $title = get_string('upcomingeventsheading', 'theme_boost_union', null, true);
+        $setting = new admin_setting_heading($name, $title, null);
+        $tab->add($setting);
+
+        // Setting: Tint activity icons in the upcoming events block.
+        $name = 'theme_boost_union/upcomingeventstintenabled';
+        $title = get_string('upcomingeventstintenabled', 'theme_boost_union', null, true);
+        $description = get_string('upcomingeventstintenabled_desc', 'theme_boost_union', null, true);
+        $setting = new admin_setting_configselect($name, $title, $description, THEME_BOOST_UNION_SETTING_SELECT_NO, $yesnooption);
+        $setting->set_updatedcallback('theme_reset_all_caches');
+        $tab->add($setting);
+
+        // Create Recently accessed items block heading.
+        $name = 'theme_boost_union/recentlyaccesseditemsheading';
+        $title = get_string('recentlyaccesseditemsheading', 'theme_boost_union', null, true);
+        $setting = new admin_setting_heading($name, $title, null);
+        $tab->add($setting);
+
+        // Setting: Tint activity icons in the recently accessed items block.
+        $name = 'theme_boost_union/recentlyaccesseditemstintenabled';
+        $title = get_string('recentlyaccesseditemstintenabled', 'theme_boost_union', null, true);
+        $description = get_string('recentlyaccesseditemstintenabled_desc', 'theme_boost_union', null, true);
+        $setting = new admin_setting_configselect($name, $title, $description, THEME_BOOST_UNION_SETTING_SELECT_NO, $yesnooption);
+        $setting->set_updatedcallback('theme_reset_all_caches');
+        $tab->add($setting);
+
+        // Create Activities block heading.
+        $name = 'theme_boost_union/activitiesheading';
+        $title = get_string('activitiesheading', 'theme_boost_union', null, true);
+        $setting = new admin_setting_heading($name, $title, null);
+        $tab->add($setting);
+
+        // Setting: Tint activity icons in the activities block.
+        $name = 'theme_boost_union/activitiestintenabled';
+        $title = get_string('activitiestintenabled', 'theme_boost_union', null, true);
+        $description = get_string('activitiestintenabled_desc', 'theme_boost_union', null, true);
+        $setting = new admin_setting_configselect($name, $title, $description, THEME_BOOST_UNION_SETTING_SELECT_NO, $yesnooption);
+        $setting->set_updatedcallback('theme_reset_all_caches');
+        $tab->add($setting);
+
+        // Add tab to settings page.
+        $page->add($tab);
+
+
         // Tab: Course.
         $tab = new admin_settingpage(
             'theme_boost_union_look_course',
@@ -1542,240 +1618,79 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
         $setting = new admin_setting_heading($name, $title, null);
         $tab->add($setting);
 
-        // Show course specific overrides intro.
-        $name = 'theme_boost_union/courseheaderoverride';
-        $courseheaderoverride = new \core\output\notification(
-            get_string('courseoverride_desc', 'theme_boost_union'),
-            \core\output\notification::NOTIFY_INFO
-        );
-        $courseheaderoverride->set_show_closebutton(false);
-        $courseheaderoverride->set_extra_classes(['alert-light']);
-        $description = $OUTPUT->render($courseheaderoverride);
-        $setting = new admin_setting_heading($name, '', $description);
+        // Setting: Display the course image in the course header.
+        $name = 'theme_boost_union/courseheaderimageenabled';
+        $title = get_string('courseheaderimageenabled', 'theme_boost_union', null, true);
+        $description = get_string('courseheaderimageenabled_desc', 'theme_boost_union', null, true);
+        $setting = new admin_setting_configselect($name, $title, $description, THEME_BOOST_UNION_SETTING_SELECT_NO, $yesnooption);
         $tab->add($setting);
 
-        // Setting: Display the course header.
-        $name = 'theme_boost_union/courseheaderenabled';
-        $title = get_string('courseheaderenabled', 'theme_boost_union', null, true);
-        $description = get_string('courseheaderenabled_desc', 'theme_boost_union', null, true);
-        $setting = new theme_boost_union\admin_setting_configselect_with_courseoverride(
-            $name,
-            $title,
-            $description,
-            THEME_BOOST_UNION_SETTING_SELECT_NO,
-            $yesnooption,
-            false
-        );
-        $setting->set_updatedcallback('theme_boost_union_purge_courseoverrides_cache');
-        $tab->add($setting);
-
-        // Setting: Course header layout.
-        $name = 'theme_boost_union/courseheaderlayout';
-        $title = get_string('courseheaderlayout', 'theme_boost_union', null, true);
-        $description = get_string('courseheaderlayout_desc', 'theme_boost_union', null, true);
-        $courseheaderlayoutoptions = coursesettings::get_courseheaderlayout_options();
-        $setting = new theme_boost_union\admin_setting_configselect_with_courseoverride(
-            $name,
-            $title,
-            $description,
-            THEME_BOOST_UNION_SETTING_COURSEHEADERLAYOUT_HEADINGABOVE,
-            $courseheaderlayoutoptions,
-            false
-        );
-        $setting->set_updatedcallback('theme_boost_union_purge_courseoverrides_cache');
-        $tab->add($setting);
-        $page->hide_if(
-            'theme_boost_union/courseheaderlayout',
-            'theme_boost_union/courseheaderenabled',
-            'neq',
-            THEME_BOOST_UNION_SETTING_SELECT_YES
-        );
-
-        // Setting: Course header image source.
-        $name = 'theme_boost_union/courseheaderimagesource';
-        $title = get_string('courseheaderimagesource', 'theme_boost_union', null, true);
-        $description = get_string('courseheaderimagesource_desc', 'theme_boost_union', null, true) . '<br />' .
-                get_string('nocourseoverride', 'theme_boost_union', null, true) . '<br /><br />' .
-                get_string('courseheaderimagesource_explanation', 'theme_boost_union', null, true);
-        $courseheaderimagesourceoptions = [
-            THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_COURSEPLUSGLOBAL =>
-                    get_string('courseheaderimagesource_courseplusglobal', 'theme_boost_union'),
-            THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_COURSENOGLOBAL =>
-                    get_string('courseheaderimagesource_coursenoglobal', 'theme_boost_union'),
-            THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_DEDICATEDPLUSGLOBAL =>
-                    get_string('courseheaderimagesource_dedicatedplusfallback', 'theme_boost_union'),
-            THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_DEDICATEDPLUSCOURSEPLUSGLOBAL =>
-                    get_string('courseheaderimagesource_dedicatedpluscourseplusfallback', 'theme_boost_union'),
-            THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_DEDICATEDPLUSCOURSENOGLOBAL =>
-                    get_string('courseheaderimagesource_dedicatedpluscoursenofallback', 'theme_boost_union'),
-            THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_DEDICATEDNOGLOBAL =>
-                    get_string('courseheaderimagesource_dedicatednofallback', 'theme_boost_union'),
-            THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_GLOBAL =>
-                    get_string('courseheaderimagesource_global', 'theme_boost_union'),
-        ];
-        $setting = new admin_setting_configselect(
-            $name,
-            $title,
-            $description,
-            THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_GLOBAL,
-            $courseheaderimagesourceoptions
-        );
-        $tab->add($setting);
-        $page->hide_if(
-            'theme_boost_union/courseheaderimagesource',
-            'theme_boost_union/courseheaderenabled',
-            'neq',
-            THEME_BOOST_UNION_SETTING_SELECT_YES
-        );
-
-        // Setting: Global course header image.
-        $name = 'theme_boost_union/courseheaderimageglobal';
-        $title = get_string('courseheaderimageglobal', 'theme_boost_union', null, true);
-        $description = get_string('courseheaderimageglobal_desc', 'theme_boost_union', null, true) . '<br />' .
-                get_string('nocourseoverride', 'theme_boost_union', null, true);
+        // Setting: Fallback course header image.
+        $name = 'theme_boost_union/courseheaderimagefallback';
+        $title = get_string('courseheaderimagefallback', 'theme_boost_union', null, true);
+        $description = get_string('courseheaderimagefallback_desc', 'theme_boost_union', null, true);
         $setting = new admin_setting_configstoredfile(
             $name,
             $title,
             $description,
-            'courseheaderimageglobal',
+            'courseheaderimagefallback',
             0,
             ['maxfiles' => 1, 'accepted_types' => 'web_image']
         );
         $tab->add($setting);
         $page->hide_if(
-            'theme_boost_union/courseheaderimageglobal',
-            'theme_boost_union/courseheaderenabled',
+            'theme_boost_union/courseheaderimagefallback',
+            'theme_boost_union/courseheaderimageenabled',
             'neq',
             THEME_BOOST_UNION_SETTING_SELECT_YES
         );
-        $page->hide_if(
-            'theme_boost_union/courseheaderimageglobal',
-            'theme_boost_union/courseheaderimagesource',
-            'eq',
-            THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_COURSENOGLOBAL
-        );
-        $page->hide_if(
-            'theme_boost_union/courseheaderimageglobal',
-            'theme_boost_union/courseheaderimagesource',
-            'eq',
-            THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_DEDICATEDNOGLOBAL
-        );
-        $page->hide_if(
-            'theme_boost_union/courseheaderimageglobal',
-            'theme_boost_union/courseheaderimagesource',
-            'eq',
-            THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGESOURCE_DEDICATEDPLUSCOURSENOGLOBAL
-        );
 
-        // Setting: Course header image requirement.
-        $name = 'theme_boost_union/courseheaderimagerequirement';
-        $title = get_string('courseheaderimagerequirement', 'theme_boost_union', null, true);
-        $description = get_string('courseheaderimagerequirement_desc', 'theme_boost_union', null, true);
-        $courseheaderimagerequirementoptions = [
-            THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGEREQUIREMENT_STANDARDONLY =>
-                    get_string('courseheaderimagerequirement_standardonly', 'theme_boost_union'),
-            THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGEREQUIREMENT_ENHANCEDWITHOUTIMAGE =>
-                    get_string('courseheaderimagerequirement_enhancedwithoutimage', 'theme_boost_union'),
-        ];
+        // Setting: Course header image layout.
+        $name = 'theme_boost_union/courseheaderimagelayout';
+        $title = get_string('courseheaderimagelayout', 'theme_boost_union', null, true);
+        $description = get_string('courseheaderimagelayout_desc', 'theme_boost_union', null, true);
+        $courseheaderimagelayoutoptions = [
+                THEME_BOOST_UNION_SETTING_COURSEIMAGELAYOUT_STACKEDDARK =>
+                        get_string('courseheaderimagelayoutstackeddark', 'theme_boost_union'),
+                THEME_BOOST_UNION_SETTING_COURSEIMAGELAYOUT_STACKEDLIGHT =>
+                        get_string('courseheaderimagelayoutstackedlight', 'theme_boost_union'),
+                THEME_BOOST_UNION_SETTING_COURSEIMAGELAYOUT_HEADINGABOVE =>
+                        get_string('courseheaderimagelayoutheadingabove', 'theme_boost_union'), ];
         $setting = new admin_setting_configselect(
             $name,
             $title,
             $description,
-            THEME_BOOST_UNION_SETTING_COURSEHEADERIMAGEREQUIREMENT_STANDARDONLY,
-            $courseheaderimagerequirementoptions
+            THEME_BOOST_UNION_SETTING_COURSEIMAGELAYOUT_HEADINGABOVE,
+            $courseheaderimagelayoutoptions
         );
         $tab->add($setting);
         $page->hide_if(
-            'theme_boost_union/courseheaderimagerequirement',
-            'theme_boost_union/courseheaderenabled',
+            'theme_boost_union/courseheaderimagelayout',
+            'theme_boost_union/courseheaderimageenabled',
             'neq',
             THEME_BOOST_UNION_SETTING_SELECT_YES
         );
 
-        // Setting: Course header height.
-        $name = 'theme_boost_union/courseheaderheight';
-        $title = get_string('courseheaderheight', 'theme_boost_union', null, true);
-        $description = get_string('courseheaderheight_desc', 'theme_boost_union', null, true);
-        $courseheaderheightoptions = coursesettings::get_courseheaderheight_options();
-        $setting = new theme_boost_union\admin_setting_configselect_with_courseoverride(
+        // Setting: Course header image height.
+        $name = 'theme_boost_union/courseheaderimageheight';
+        $title = get_string('courseheaderimageheight', 'theme_boost_union', null, true);
+        $description = get_string('courseheaderimageheight_desc', 'theme_boost_union', null, true);
+        $courseheaderimageheightoptions = [
+                THEME_BOOST_UNION_SETTING_HEIGHT_100PX => THEME_BOOST_UNION_SETTING_HEIGHT_100PX,
+                THEME_BOOST_UNION_SETTING_HEIGHT_150PX => THEME_BOOST_UNION_SETTING_HEIGHT_150PX,
+                THEME_BOOST_UNION_SETTING_HEIGHT_200PX => THEME_BOOST_UNION_SETTING_HEIGHT_200PX,
+                THEME_BOOST_UNION_SETTING_HEIGHT_250PX => THEME_BOOST_UNION_SETTING_HEIGHT_250PX, ];
+        $setting = new admin_setting_configselect(
             $name,
             $title,
             $description,
             THEME_BOOST_UNION_SETTING_HEIGHT_150PX,
-            $courseheaderheightoptions,
-            false
+            $courseheaderimageheightoptions
         );
-        $setting->set_updatedcallback('theme_boost_union_purge_courseoverrides_cache');
         $tab->add($setting);
         $page->hide_if(
-            'theme_boost_union/courseheaderheight',
-            'theme_boost_union/courseheaderenabled',
-            'neq',
-            THEME_BOOST_UNION_SETTING_SELECT_YES
-        );
-
-        // Setting: Course header canvas border.
-        $name = 'theme_boost_union/courseheadercanvasborder';
-        $title = get_string('courseheadercanvasborder', 'theme_boost_union', null, true);
-        $description = get_string('courseheadercanvasborder_desc', 'theme_boost_union', null, true);
-        $courseheadercanvasborderoptions = coursesettings::get_courseheadercanvasborder_options();
-        $setting = new theme_boost_union\admin_setting_configselect_with_courseoverride(
-            $name,
-            $title,
-            $description,
-            THEME_BOOST_UNION_SETTING_COURSEHEADERCANVASBORDER_NONE,
-            $courseheadercanvasborderoptions,
-            false
-        );
-        $setting->set_updatedcallback('theme_boost_union_purge_courseoverrides_cache');
-        $tab->add($setting);
-        $page->hide_if(
-            'theme_boost_union/courseheadercanvasborder',
-            'theme_boost_union/courseheaderenabled',
-            'neq',
-            THEME_BOOST_UNION_SETTING_SELECT_YES
-        );
-
-        // Setting: Course header canvas background.
-        $name = 'theme_boost_union/courseheadercanvasbackground';
-        $title = get_string('courseheadercanvasbackground', 'theme_boost_union', null, true);
-        $description = get_string('courseheadercanvasbackground_desc', 'theme_boost_union', null, true);
-        $courseheadercanvasbackgroundoptions = coursesettings::get_courseheadercanvasbackground_options();
-        $setting = new theme_boost_union\admin_setting_configselect_with_courseoverride(
-            $name,
-            $title,
-            $description,
-            THEME_BOOST_UNION_SETTING_COURSEHEADERCANVASBACKGROUND_TRANSPARENT,
-            $courseheadercanvasbackgroundoptions,
-            false
-        );
-        $setting->set_updatedcallback('theme_boost_union_purge_courseoverrides_cache');
-        $tab->add($setting);
-        $page->hide_if(
-            'theme_boost_union/courseheadercanvasbackground',
-            'theme_boost_union/courseheaderenabled',
-            'neq',
-            THEME_BOOST_UNION_SETTING_SELECT_YES
-        );
-
-        // Setting: Course header text on image style.
-        $name = 'theme_boost_union/courseheadertextonimagestyle';
-        $title = get_string('courseheadertextonimagestyle', 'theme_boost_union', null, true);
-        $description = get_string('courseheadertextonimagestyle_desc', 'theme_boost_union', null, true);
-        $courseheadertextonimagestyleoptions = coursesettings::get_courseheadertextonimagestyle_options();
-        $setting = new theme_boost_union\admin_setting_configselect_with_courseoverride(
-            $name,
-            $title,
-            $description,
-            THEME_BOOST_UNION_SETTING_COURSEHEADERTEXTONIMAGESTYLE_LIGHT,
-            $courseheadertextonimagestyleoptions,
-            false
-        );
-        $setting->set_updatedcallback('theme_boost_union_purge_courseoverrides_cache');
-        $tab->add($setting);
-        $page->hide_if(
-            'theme_boost_union/courseheadertextonimagestyle',
-            'theme_boost_union/courseheaderenabled',
+            'theme_boost_union/courseheaderimageheight',
+            'theme_boost_union/courseheaderimageenabled',
             'neq',
             THEME_BOOST_UNION_SETTING_SELECT_YES
         );
@@ -1784,313 +1699,39 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
         $name = 'theme_boost_union/courseheaderimageposition';
         $title = get_string('courseheaderimageposition', 'theme_boost_union', null, true);
         $description = get_string('courseheaderimageposition_desc', 'theme_boost_union', null, true);
-        $courseheaderimagepositionoptions = coursesettings::get_courseheaderimageposition_options();
-        $setting = new theme_boost_union\admin_setting_configselect_with_courseoverride(
+        $courseheaderimagepositionoptions = [
+                THEME_BOOST_UNION_SETTING_IMAGEPOSITION_CENTER_CENTER =>
+                        THEME_BOOST_UNION_SETTING_IMAGEPOSITION_CENTER_CENTER,
+                THEME_BOOST_UNION_SETTING_IMAGEPOSITION_CENTER_TOP =>
+                        THEME_BOOST_UNION_SETTING_IMAGEPOSITION_CENTER_TOP,
+                THEME_BOOST_UNION_SETTING_IMAGEPOSITION_CENTER_BOTTOM =>
+                        THEME_BOOST_UNION_SETTING_IMAGEPOSITION_CENTER_BOTTOM,
+                THEME_BOOST_UNION_SETTING_IMAGEPOSITION_LEFT_TOP =>
+                        THEME_BOOST_UNION_SETTING_IMAGEPOSITION_LEFT_TOP,
+                THEME_BOOST_UNION_SETTING_IMAGEPOSITION_LEFT_CENTER =>
+                        THEME_BOOST_UNION_SETTING_IMAGEPOSITION_LEFT_CENTER,
+                THEME_BOOST_UNION_SETTING_IMAGEPOSITION_LEFT_BOTTOM =>
+                        THEME_BOOST_UNION_SETTING_IMAGEPOSITION_LEFT_BOTTOM,
+                THEME_BOOST_UNION_SETTING_IMAGEPOSITION_RIGHT_TOP =>
+                        THEME_BOOST_UNION_SETTING_IMAGEPOSITION_RIGHT_TOP,
+                THEME_BOOST_UNION_SETTING_IMAGEPOSITION_RIGHT_CENTER =>
+                        THEME_BOOST_UNION_SETTING_IMAGEPOSITION_RIGHT_CENTER,
+                THEME_BOOST_UNION_SETTING_IMAGEPOSITION_RIGHT_BOTTOM =>
+                        THEME_BOOST_UNION_SETTING_IMAGEPOSITION_RIGHT_BOTTOM, ];
+        $setting = new admin_setting_configselect(
             $name,
             $title,
             $description,
             THEME_BOOST_UNION_SETTING_IMAGEPOSITION_CENTER_CENTER,
-            $courseheaderimagepositionoptions,
-            false
+            $courseheaderimagepositionoptions
         );
-        $setting->set_updatedcallback('theme_boost_union_purge_courseoverrides_cache');
         $tab->add($setting);
         $page->hide_if(
             'theme_boost_union/courseheaderimageposition',
-            'theme_boost_union/courseheaderenabled',
+            'theme_boost_union/courseheaderimageenabled',
             'neq',
             THEME_BOOST_UNION_SETTING_SELECT_YES
         );
-
-        // Setting: Show course contacts in the course header.
-        $name = 'theme_boost_union/courseheadershowcontacts';
-        $title = get_string('courseheadershowcontacts', 'theme_boost_union', null, true);
-        $description = get_string('courseheadershowcontacts_desc', 'theme_boost_union', null, true);
-        $setting = new admin_setting_configselect($name, $title, $description, THEME_BOOST_UNION_SETTING_SELECT_NO, $yesnooption);
-        $tab->add($setting);
-        $page->hide_if(
-            'theme_boost_union/courseheadershowcontacts',
-            'theme_boost_union/courseheaderenabled',
-            'neq',
-            THEME_BOOST_UNION_SETTING_SELECT_YES
-        );
-
-        // Setting: Show course shortname in the course header.
-        $name = 'theme_boost_union/courseheadershowshortname';
-        $title = get_string('courseheadershowshortname', 'theme_boost_union', null, true);
-        $description = get_string('courseheadershowshortname_desc', 'theme_boost_union', null, true);
-        $setting = new admin_setting_configselect($name, $title, $description, THEME_BOOST_UNION_SETTING_SELECT_NO, $yesnooption);
-        $tab->add($setting);
-        $page->hide_if(
-            'theme_boost_union/courseheadershowshortname',
-            'theme_boost_union/courseheaderenabled',
-            'neq',
-            THEME_BOOST_UNION_SETTING_SELECT_YES
-        );
-
-        // Setting: Show course category in the course header.
-        $name = 'theme_boost_union/courseheadershowcategory';
-        $title = get_string('courseheadershowcategory', 'theme_boost_union', null, true);
-        $description = get_string('courseheadershowcategory_desc', 'theme_boost_union', null, true);
-        $setting = new admin_setting_configselect($name, $title, $description, THEME_BOOST_UNION_SETTING_SELECT_NO, $yesnooption);
-        $tab->add($setting);
-        $page->hide_if(
-            'theme_boost_union/courseheadershowcategory',
-            'theme_boost_union/courseheaderenabled',
-            'neq',
-            THEME_BOOST_UNION_SETTING_SELECT_YES
-        );
-
-        // Setting: Show course completion progress in the course header.
-        $name = 'theme_boost_union/courseheadershowprogress';
-        $title = get_string('courseheadershowprogress', 'theme_boost_union', null, true);
-        $description = get_string('courseheadershowprogress_desc', 'theme_boost_union', null, true);
-        $setting = new admin_setting_configselect($name, $title, $description, THEME_BOOST_UNION_SETTING_SELECT_NO, $yesnooption);
-        $tab->add($setting);
-        $page->hide_if(
-            'theme_boost_union/courseheadershowprogress',
-            'theme_boost_union/courseheaderenabled',
-            'neq',
-            THEME_BOOST_UNION_SETTING_SELECT_YES
-        );
-
-        // Setting: Course completion progress style.
-        $name = 'theme_boost_union/courseheaderprogressstyle';
-        $title = get_string('courseheaderprogressstyle', 'theme_boost_union', null, true);
-        $description = get_string('courseheaderprogressstyle_desc', 'theme_boost_union', null, true);
-        $courseprogressstyleoptions = [
-                THEME_BOOST_UNION_SETTING_COURSEPROGRESSSTYLE_PERCENTAGE =>
-                        get_string('courseistingprogressstyle_percentage', 'theme_boost_union'),
-                THEME_BOOST_UNION_SETTING_COURSEPROGRESSSTYLE_BAR =>
-                        get_string('courseistingprogressstyle_bar', 'theme_boost_union'),
-        ];
-        $setting = new admin_setting_configselect(
-            $name,
-            $title,
-            $description,
-            THEME_BOOST_UNION_SETTING_COURSEPROGRESSSTYLE_PERCENTAGE,
-            $courseprogressstyleoptions
-        );
-        $tab->add($setting);
-        $page->hide_if(
-            'theme_boost_union/courseheaderprogressstyle',
-            'theme_boost_union/courseheaderenabled',
-            'neq',
-            THEME_BOOST_UNION_SETTING_SELECT_YES
-        );
-        $page->hide_if(
-            'theme_boost_union/courseheaderprogressstyle',
-            'theme_boost_union/courseheadershowprogress',
-            'neq',
-            THEME_BOOST_UNION_SETTING_SELECT_YES
-        );
-
-        // Setting: Show course fields in the course header.
-        $name = 'theme_boost_union/courseheadershowfields';
-        $title = get_string('courseheadershowfields', 'theme_boost_union', null, true);
-        $description = get_string('courseheadershowfields_desc', 'theme_boost_union', null, true);
-        $setting = new admin_setting_configselect($name, $title, $description, THEME_BOOST_UNION_SETTING_SELECT_NO, $yesnooption);
-        $tab->add($setting);
-        $page->hide_if(
-            'theme_boost_union/courseheadershowfields',
-            'theme_boost_union/courseheaderenabled',
-            'neq',
-            THEME_BOOST_UNION_SETTING_SELECT_YES
-        );
-
-        // Setting: Select course fields to be shown in the course header.
-        // If there are existing fields.
-        if (count($coursefieldsoptionsarray) > 0) {
-            // Build the setting.
-            $name = 'theme_boost_union/courseheaderselectfields';
-            $title = get_string('courseheaderselectfields', 'theme_boost_union', null, true);
-            $description = get_string('courseheaderselectfields_desc', 'theme_boost_union', null, true);
-            $setting = new admin_setting_configmulticheckbox(
-                $name,
-                $title,
-                $description,
-                $coursefieldsoptionsdefault,
-                $coursefieldsoptionsarray
-            );
-            $tab->add($setting);
-            $page->hide_if(
-                'theme_boost_union/courseheaderselectfields',
-                'theme_boost_union/courseheaderenabled',
-                'neq',
-                THEME_BOOST_UNION_SETTING_SELECT_YES
-            );
-            $page->hide_if(
-                'theme_boost_union/courseheaderselectfields',
-                'theme_boost_union/courseheadershowfields',
-                'neq',
-                THEME_BOOST_UNION_SETTING_SELECT_YES
-            );
-
-            // Otherwise.
-        } else {
-            // Build an empty setting.
-            $customfieldurl = new \core\url('/course/customfield.php');
-            $customfieldlink = ['url' => $customfieldurl->out(),
-                    'linktitle' => get_string('course_customfield', 'admin', null, true),
-            ];
-            $name = 'theme_boost_union/courseheaderselectfields';
-            $title = get_string('courseheaderselectfields', 'theme_boost_union', null, true);
-            $description = get_string('courseheaderselectfields_nofield', 'theme_boost_union', $customfieldlink, true);
-            $setting = new admin_setting_configempty($name, $title, $description);
-            $tab->add($setting);
-            $page->hide_if(
-                'theme_boost_union/courseheaderselectfields',
-                'theme_boost_union/courseheaderenabled',
-                'neq',
-                THEME_BOOST_UNION_SETTING_SELECT_YES
-            );
-            $page->hide_if(
-                'theme_boost_union/courseheaderselectfields',
-                'theme_boost_union/courseheadershowfields',
-                'neq',
-                THEME_BOOST_UNION_SETTING_SELECT_YES
-            );
-        }
-
-        // Setting: Style course fields in the course header.
-        $name = 'theme_boost_union/courseheaderstylefields';
-        $title = get_string('courseheaderstylefields', 'theme_boost_union');
-        $description = get_string('courseheaderstylefields_desc', 'theme_boost_union');
-        $stylefieldsoptions = [
-                THEME_BOOST_UNION_SETTING_SHOWAS_TEXT => get_string('showastext', 'theme_boost_union'),
-                THEME_BOOST_UNION_SETTING_SHOWAS_BADGE => get_string('showasbadge', 'theme_boost_union'),
-        ];
-        $setting = new admin_setting_configselect(
-            $name,
-            $title,
-            $description,
-            THEME_BOOST_UNION_SETTING_SHOWAS_TEXT,
-            $stylefieldsoptions
-        );
-        $tab->add($setting);
-            $page->hide_if(
-                'theme_boost_union/courseheaderstylefields',
-                'theme_boost_union/courseheaderenabled',
-                'neq',
-                THEME_BOOST_UNION_SETTING_SELECT_YES
-            );
-            $page->hide_if(
-                'theme_boost_union/courseheaderstylefields',
-                'theme_boost_union/courseheadershowfields',
-                'neq',
-                THEME_BOOST_UNION_SETTING_SELECT_YES
-            );
-
-        // Setting: Show details popup in the course header.
-        $name = 'theme_boost_union/courseheadershowpopup';
-        $title = get_string('courseheadershowpopup', 'theme_boost_union', null, true);
-        $description = get_string('courseheadershowpopup_desc', 'theme_boost_union', null, true);
-        $setting = new admin_setting_configselect($name, $title, $description, THEME_BOOST_UNION_SETTING_SELECT_NO, $yesnooption);
-        $tab->add($setting);
-        $page->hide_if(
-            'theme_boost_union/courseheadershowpopup',
-            'theme_boost_union/courseheaderenabled',
-            'neq',
-            THEME_BOOST_UNION_SETTING_SELECT_YES
-        );
-
-        // Setting: Show edit icon in the course header.
-        $name = 'theme_boost_union/courseheadershowediticon';
-        $title = get_string('courseheadershowediticon', 'theme_boost_union', null, true);
-        $description = get_string('courseheadershowediticon_desc', 'theme_boost_union', null, true);
-        $setting = new admin_setting_configselect($name, $title, $description, THEME_BOOST_UNION_SETTING_SELECT_NO, $yesnooption);
-        $tab->add($setting);
-        $page->hide_if(
-            'theme_boost_union/courseheadershowediticon',
-            'theme_boost_union/courseheaderenabled',
-            'neq',
-            THEME_BOOST_UNION_SETTING_SELECT_YES
-        );
-
-        // Setting: Course header layouts exclusion list.
-        $name = 'theme_boost_union/courseheaderlayoutexclusionlist';
-        $title = get_string('courseheaderlayoutexclusionlist', 'theme_boost_union', null, true);
-        $description = get_string('courseheaderlayoutexclusionlist_desc', 'theme_boost_union', null, true);
-        $courseheaderlayoutoptions = coursesettings::get_courseheaderlayout_options();
-        $setting = new admin_setting_configmulticheckbox($name, $title, $description, [], $courseheaderlayoutoptions);
-        $tab->add($setting);
-        $page->hide_if(
-            'theme_boost_union/courseheaderlayoutexclusionlist',
-            'theme_boost_union/courseheaderenabled',
-            'neq',
-            THEME_BOOST_UNION_SETTING_SELECT_YES
-        );
-
-        // Prepare course format exclusion list options.
-        $courseformatoptions = [];
-        $formatplugins = core_plugin_manager::instance()->get_plugins_of_type('format');
-        foreach ($formatplugins as $plugin) {
-            if ($plugin->is_enabled()) {
-                $courseformatoptions[$plugin->name] = get_string('pluginname', 'format_' . $plugin->name);
-            }
-        }
-
-        // Setting: Course header format exclusion list.
-        $name = 'theme_boost_union/courseheaderformatexclusionlist';
-        $title = get_string('courseheaderformatexclusionlist', 'theme_boost_union', null, true);
-        $description = get_string('courseheaderformatexclusionlist_desc', 'theme_boost_union', null, true);
-        $setting = new admin_setting_configmulticheckbox($name, $title, $description, [], $courseformatoptions);
-        $tab->add($setting);
-        $page->hide_if(
-            'theme_boost_union/courseheaderformatexclusionlist',
-            'theme_boost_union/courseheaderenabled',
-            'neq',
-            THEME_BOOST_UNION_SETTING_SELECT_YES
-        );
-
-        // Setting: Transfer course header settings during course import.
-        $name = 'theme_boost_union/courseheaderimporttransfer';
-        $title = get_string('courseheaderimporttransfer', 'theme_boost_union', null, true);
-        $description = get_string('courseheaderimporttransfer_desc', 'theme_boost_union', null, true);
-        $importtransferoptions = [
-                THEME_BOOST_UNION_SETTING_SELECT_NEVER => get_string('never', 'theme_boost_union'),
-                THEME_BOOST_UNION_SETTING_SELECT_ALWAYS => get_string('always', 'theme_boost_union'),
-                THEME_BOOST_UNION_SETTING_SELECT_BYCAPABILITY => get_string('bycapability', 'theme_boost_union'),
-        ];
-        $setting = new admin_setting_configselect(
-            $name,
-            $title,
-            $description,
-            THEME_BOOST_UNION_SETTING_SELECT_NEVER,
-            $importtransferoptions
-        );
-        $tab->add($setting);
-        $page->hide_if(
-            'theme_boost_union/courseheaderimporttransfer',
-            'theme_boost_union/courseheaderenabled',
-            'neq',
-            THEME_BOOST_UNION_SETTING_SELECT_YES
-        );
-
-        // Heading: Breadcrumbs.
-        $name = 'theme_boost_union/breadcrumbsheading';
-        $title = get_string('breadcrumbsheading', 'theme_boost_union', null, true);
-        $setting = new admin_setting_heading($name, $title, null);
-        $tab->add($setting);
-
-        // Setting: Display the category breadcrumb in the course header.
-        $categorybreadcrumbsoptions = [
-            // Don't use string lazy loading (= false) because the string will be directly used and would produce a
-            // PHP warning otherwise.
-            THEME_BOOST_UNION_SETTING_SELECT_YES => get_string('yes'),
-            THEME_BOOST_UNION_SETTING_SELECT_NO => get_string('no'),
-        ];
-        $name = 'theme_boost_union/categorybreadcrumbs';
-        $title = get_string('categorybreadcrumbs', 'theme_boost_union', null, true);
-        $description = get_string('categorybreadcrumbs_desc', 'theme_boost_union', null, true);
-        $setting = new admin_setting_configselect(
-            $name,
-            $title,
-            $description,
-            THEME_BOOST_UNION_SETTING_SELECT_NO,
-            $categorybreadcrumbsoptions
-        );
-        $tab->add($setting);
 
         // Heading: Course index.
         $name = 'theme_boost_union/courseindexheading';
@@ -2551,12 +2192,10 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
 
         // Prepare hide nodes options.
         $hidenodesoptions = [
-            THEME_BOOST_UNION_SETTING_HIDENODESPRIMARYNAVIGATION_HOME => get_string('home'),
-            THEME_BOOST_UNION_SETTING_HIDENODESPRIMARYNAVIGATION_MYHOME => get_string('myhome'),
-            THEME_BOOST_UNION_SETTING_HIDENODESPRIMARYNAVIGATION_MYCOURSES => get_string('mycourses'),
-            THEME_BOOST_UNION_SETTING_HIDENODESPRIMARYNAVIGATION_SITEADMIN => get_string('administrationsite'),
-            THEME_BOOST_UNION_SETTING_HIDENODESPRIMARYNAVIGATION_CALENDAR => get_string('calendar', 'calendar') .
-                    ' (' . get_string('hidenodesprimarynavigationonlyguest', 'theme_boost_union') . ')',
+                THEME_BOOST_UNION_SETTING_HIDENODESPRIMARYNAVIGATION_HOME => get_string('home'),
+                THEME_BOOST_UNION_SETTING_HIDENODESPRIMARYNAVIGATION_MYHOME => get_string('myhome'),
+                THEME_BOOST_UNION_SETTING_HIDENODESPRIMARYNAVIGATION_MYCOURSES => get_string('mycourses'),
+                THEME_BOOST_UNION_SETTING_HIDENODESPRIMARYNAVIGATION_SITEADMIN => get_string('administrationsite'),
         ];
 
         // Setting: Hide nodes in primary navigation.
@@ -2652,6 +2291,31 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
             THEME_BOOST_UNION_SETTING_SELECT_YES
         );
 
+        // Heading: Breadcrumbs.
+        $name = 'theme_boost_union/breadcrumbsheading';
+        $title = get_string('breadcrumbsheading', 'theme_boost_union', null, true);
+        $setting = new admin_setting_heading($name, $title, null);
+        $tab->add($setting);
+
+        // Setting: Display the category breadcrumb in the course header.
+        $categorybreadcrumbsoptions = [
+            // Don't use string lazy loading (= false) because the string will be directly used and would produce a
+            // PHP warning otherwise.
+            THEME_BOOST_UNION_SETTING_SELECT_YES => get_string('yes'),
+            THEME_BOOST_UNION_SETTING_SELECT_NO => get_string('no'),
+        ];
+        $name = 'theme_boost_union/categorybreadcrumbs';
+        $title = get_string('categorybreadcrumbs', 'theme_boost_union', null, true);
+        $description = get_string('categorybreadcrumbs_desc', 'theme_boost_union', null, true);
+        $setting = new admin_setting_configselect(
+            $name,
+            $title,
+            $description,
+            THEME_BOOST_UNION_SETTING_SELECT_NO,
+            $categorybreadcrumbsoptions
+        );
+        $tab->add($setting);
+
         // Heading: Navigation.
         $name = 'theme_boost_union/navigationheading';
         $title = get_string('navigationheading', 'theme_boost_union', null, true);
@@ -2699,7 +2363,7 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
         $name = 'theme_boost_union/unaddableblocks';
         $title = get_string('unaddableblocks', 'theme_boost', null, true);
         $description = get_string('unaddableblocks_desc', 'theme_boost', null, true);
-        $default = 'navigation,settings,course_list';
+        $default = 'navigation,settings,course_list,section_links';
         $setting = new admin_setting_configtext($name, $title, $description, $default, PARAM_TEXT);
         $tab->add($setting);
 
@@ -2717,42 +2381,21 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
             \core\output\notification::NOTIFY_INFO
         );
         $blockregionsintro->set_show_closebutton(false);
-        $blockregionsintro->set_extra_classes(['alert-light']);
+        $blockregionsintro->set_extra_classes(['alert-dark']);
         $description = $OUTPUT->render($blockregionsintro);
         $setting = new admin_setting_heading($name, '', $description);
         $tab->add($setting);
 
-        // Add guest role warning (If the guestroleupgradedfrompre500 setting is set to true).
-        if (get_config('theme_boost_union', 'guestroleupgradedfrompre500') == 1) {
-            $name = 'theme_boost_union/blockregionsheadingguestrole';
-            $guestrolefixurl = new core\url(
-                '/theme/boost_union/settings_update_guestrole.php',
-                ['sesskey' => sesskey(), 'fix' => 1]
-            );
-            $guestrolekeepurl = new core\url(
-                '/theme/boost_union/settings_update_guestrole.php',
-                ['sesskey' => sesskey(), 'fix' => 0]
-            );
-            $guestrolenote = \core\output\html_writer::tag(
-                'p',
-                get_string('blockregionsheading_guestrole', 'theme_boost_union', null, true)
-            );
-            $guestrolenote .= \core\output\html_writer::link(
-                $guestrolefixurl,
-                get_string('blockregionsheading_guestrole_fix', 'theme_boost_union', null, true),
-                ['class' => 'btn btn-secondary mt-1 me-3', 'role' => 'button']
-            );
-            $guestrolenote .= \core\output\html_writer::link(
-                $guestrolekeepurl,
-                get_string('blockregionsheading_guestrole_keep', 'theme_boost_union', null, true),
-                ['class' => 'btn btn-secondary mt-1', 'role' => 'button']
-            );
-            $notification = new \core\output\notification($guestrolenote, \core\output\notification::NOTIFY_ERROR);
-            $notification->set_show_closebutton(false);
-            $description = $OUTPUT->render($notification);
-            $setting = new admin_setting_heading($name, '', $description);
-            $tab->add($setting);
-        }
+        // Add experimental warning.
+        $name = 'theme_boost_union/blockregionsheadingexperimental';
+        $notification = new \core\output\notification(
+            get_string('blockregionsheading_experimental', 'theme_boost_union'),
+            \core\output\notification::NOTIFY_WARNING
+        );
+        $notification->set_show_closebutton(false);
+        $description = $OUTPUT->render($notification);
+        $setting = new admin_setting_heading($name, '', $description);
+        $tab->add($setting);
 
         // Settings: Additional block regions for 'x' layout.
         // List of region strings.
@@ -2899,42 +2542,6 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
             $description,
             THEME_BOOST_UNION_SETTING_OUTSIDEREGIONSPLACEMENT_NEXTMAINCONTENT,
             $outsideregionsplacementoptions
-        );
-        $tab->add($setting);
-
-        // Setting: Outside regions vertical alignment.
-        $outsideregionsalignmentoptions = [
-                THEME_BOOST_UNION_SETTING_OUTSIDEREGIONSVERTICALALIGN_DEFAULT =>
-                        get_string('outsideregionsverticalaligndefault', 'theme_boost_union', null, false),
-                THEME_BOOST_UNION_SETTING_OUTSIDEREGIONSVERTICALALIGN_PAGECONTENT =>
-                        get_string('outsideregionsverticalalignpagecontent', 'theme_boost_union', null, false), ];
-        $name = 'theme_boost_union/outsideregionsverticalalignment';
-        $title = get_string('outsideregionsverticalalignment', 'theme_boost_union', null, true);
-        $description = get_string('outsideregionsverticalalignment_desc', 'theme_boost_union', null, true);
-        $setting = new admin_setting_configselect(
-            $name,
-            $title,
-            $description,
-            THEME_BOOST_UNION_SETTING_OUTSIDEREGIONSVERTICALALIGN_DEFAULT,
-            $outsideregionsalignmentoptions
-        );
-        $tab->add($setting);
-
-        // Setting: Outside regions wrapping.
-        $name = 'theme_boost_union/outsideregionswrap';
-        $outsideregionswrappingoptions = [
-                THEME_BOOST_UNION_SETTING_OUTSIDEREGIONSWRAPPING_ABOVEBELOW =>
-                        get_string('outsideregionswrap_abovebelow', 'theme_boost_union', null, false),
-                THEME_BOOST_UNION_SETTING_OUTSIDEREGIONSWRAPPING_BOTHBELOW =>
-                        get_string('outsideregionswrap_bothbelow', 'theme_boost_union', null, false), ];
-        $title = get_string('outsideregionswrap', 'theme_boost_union', null, true);
-        $description = get_string('outsideregionswrap_desc', 'theme_boost_union', null, true);
-        $setting = new admin_setting_configselect(
-            $name,
-            $title,
-            $description,
-            THEME_BOOST_UNION_SETTING_OUTSIDEREGIONSWRAPPING_ABOVEBELOW,
-            $outsideregionswrappingoptions
         );
         $tab->add($setting);
 
@@ -3544,16 +3151,6 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
                         get_string('infobannermodetimebased', 'theme_boost_union', null, false),
         ];
 
-        // Prepare options for the position settings.
-        $infobannerpositions = [
-            // Don't use string lazy loading (= false) because the string will be directly used and would produce a
-            // PHP warning otherwise.
-                THEME_BOOST_UNION_SETTING_INFOBANNERPOSITION_ABOVE =>
-                        get_string('infobannerpositionabove', 'theme_boost_union', null, false),
-                THEME_BOOST_UNION_SETTING_INFOBANNERPOSITION_BELOW =>
-                        get_string('infobannerpositionbelow', 'theme_boost_union', null, false),
-        ];
-
         // Create the hardcoded amount of information banners without code duplication.
         for ($i = 1; $i <= THEME_BOOST_UNION_SETTING_INFOBANNER_COUNT; $i++) {
             // Heading: Infobanner.
@@ -3645,25 +3242,6 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
             $tab->add($setting);
             $page->hide_if(
                 'theme_boost_union/infobanner' . $i . 'order',
-                'theme_boost_union/infobanner' . $i . 'enabled',
-                'neq',
-                THEME_BOOST_UNION_SETTING_SELECT_YES
-            );
-
-            // Setting: Infobanner position in relation to page header.
-            $name = 'theme_boost_union/infobanner' . $i . 'position';
-            $title = get_string('infobannerpositionsetting', 'theme_boost_union', ['no' => $i], true);
-            $description = get_string('infobannerpositionsetting_desc', 'theme_boost_union', ['no' => $i], true);
-            $setting = new admin_setting_configselect(
-                $name,
-                $title,
-                $description,
-                THEME_BOOST_UNION_SETTING_INFOBANNERPOSITION_ABOVE,
-                $infobannerpositions
-            );
-            $tab->add($setting);
-            $page->hide_if(
-                'theme_boost_union/infobanner' . $i . 'position',
                 'theme_boost_union/infobanner' . $i . 'enabled',
                 'neq',
                 THEME_BOOST_UNION_SETTING_SELECT_YES
@@ -3890,7 +3468,7 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
                 $name,
                 $title,
                 $description,
-                'tile' . $i . 'backgroundimage',
+                'tilebackgroundimage' . $i,
                 0,
                 ['maxfiles' => 1, 'accepted_types' => 'web_image']
             );
@@ -4105,6 +3683,8 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
 
         // Setting: Slider animation type.
         $slideranimationoptions = [
+                THEME_BOOST_UNION_SETTING_SLIDER_ANIMATIONTYPE_NONE =>
+                        get_string('slideranimationsetting_none', 'theme_boost_union'),
                 THEME_BOOST_UNION_SETTING_SLIDER_ANIMATIONTYPE_FADE =>
                         get_string('slideranimationsetting_fade', 'theme_boost_union'),
                 THEME_BOOST_UNION_SETTING_SLIDER_ANIMATIONTYPE_SLIDE =>
@@ -4119,25 +3699,6 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
             $description,
             THEME_BOOST_UNION_SETTING_SLIDER_ANIMATIONTYPE_SLIDE,
             $slideranimationoptions
-        );
-        $tab->add($setting);
-
-        // Setting: Slider variant.
-        $name = 'theme_boost_union/slidervariant';
-        $title = get_string('slidervariantsetting', 'theme_boost_union', null, true);
-        $description = get_string('slidervariantsetting_desc', 'theme_boost_union', null, true);
-        $slidervariantoptions = [
-                THEME_BOOST_UNION_SETTING_SLIDER_VARIANT_LIGHT =>
-                        get_string('slidervariantsetting_light', 'theme_boost_union'),
-                THEME_BOOST_UNION_SETTING_SLIDER_VARIANT_DARK =>
-                        get_string('slidervariantsetting_dark', 'theme_boost_union'),
-        ];
-        $setting = new admin_setting_configselect(
-            $name,
-            $title,
-            $description,
-            THEME_BOOST_UNION_SETTING_SLIDER_VARIANT_LIGHT,
-            $slidervariantoptions
         );
         $tab->add($setting);
 
@@ -4243,7 +3804,7 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
                 $name,
                 $title,
                 $description,
-                'slide' . $i . 'backgroundimage',
+                'slidebackgroundimage' . $i,
                 0,
                 ['maxfiles' => 1, 'accepted_types' => 'web_image']
             );
@@ -4300,8 +3861,6 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
             $title = get_string('slidecontentstylesetting', 'theme_boost_union', ['no' => $i], true);
             $description = get_string('slidecontentstylesetting_desc', 'theme_boost_union', ['no' => $i], true);
             $slidecontentstyleoptions = [
-                    THEME_BOOST_UNION_SETTING_CONTENTSTYLE_NOCHANGE =>
-                            get_string('slidecontentstylesetting_nochange', 'theme_boost_union'),
                     THEME_BOOST_UNION_SETTING_CONTENTSTYLE_LIGHT =>
                             get_string('slidecontentstylesetting_light', 'theme_boost_union'),
                     THEME_BOOST_UNION_SETTING_CONTENTSTYLE_LIGHTSHADOW =>
@@ -4315,7 +3874,7 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
                 $name,
                 $title,
                 $description,
-                THEME_BOOST_UNION_SETTING_CONTENTSTYLE_NOCHANGE,
+                THEME_BOOST_UNION_SETTING_CONTENTSTYLE_LIGHT,
                 $slidecontentstyleoptions
             );
             $tab->add($setting);
@@ -4411,20 +3970,6 @@ if ($hassiteconfig || has_capability('theme/boost_union:configure', context_syst
             $tab->add($setting);
             $page->hide_if(
                 'theme_boost_union/slide' . $i . 'order',
-                'theme_boost_union/slide' . $i . 'enabled',
-                'neq',
-                THEME_BOOST_UNION_SETTING_SELECT_YES
-            );
-
-            // Setting: Slide interval.
-            $name = 'theme_boost_union/slide' . $i . 'interval';
-            $title = get_string('slideintervalsetting', 'theme_boost_union', ['no' => $i], true);
-            $description = get_string('slideintervalsetting_desc', 'theme_boost_union', ['no' => $i], true);
-            // Here, we us a regex instead of PARAM_INT to allow an empty value (which means using the default interval) as well.
-            $setting = new admin_setting_configtext($name, $title, $description, '', '/^\d*$/', 6);
-            $tab->add($setting);
-            $page->hide_if(
-                'theme_boost_union/slide' . $i . 'interval',
                 'theme_boost_union/slide' . $i . 'enabled',
                 'neq',
                 THEME_BOOST_UNION_SETTING_SELECT_YES

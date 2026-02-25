@@ -116,7 +116,7 @@ $intro = new \core\output\notification(
     \core\output\notification::NOTIFY_INFO
 );
 $intro->set_show_closebutton(false);
-$intro->set_extra_classes(['alert-light']);
+$intro->set_extra_classes(['alert-dark']);
 echo $OUTPUT->render($intro);
 
 // Add experimental warning.

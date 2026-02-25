@@ -148,18 +148,17 @@ class course {
     /**
      * Returns course custom fields.
      *
-     * @param string $datasource The data source to get the custom fields from. Either 'header' or 'listing', defaults to 'listing'.
      * @return string The string of custom fields.
      */
-    public function get_custom_fields($datasource = 'listing'): string {
+    public function get_custom_fields(): string {
 
-        // If the caller wanted to get either header or listing and if there are custom fields.
-        if (($datasource == 'header' || $datasource == 'listing') && $this->course->has_custom_fields()) {
+        // If there are custom fields.
+        if ($this->course->has_custom_fields()) {
             // Get the course handler.
             $handler = \core_course\customfield\course_handler::create();
 
             // Get the selected fields from the settings.
-            $selectedfields = get_config('theme_boost_union', 'course' . $datasource . 'selectfields');
+            $selectedfields = get_config('theme_boost_union', 'courselistingselectfields');
 
             // If specific fields are selected, filter the fields.
             if (!empty($selectedfields)) {
@@ -177,7 +176,7 @@ class course {
                 // Get and return the filtered custom fields.
                 if (!empty($filteredfields)) {
                     // Get the field styling from the settings.
-                    $stylefields = get_config('theme_boost_union', 'course' . $datasource . 'stylefields');
+                    $stylefields = get_config('theme_boost_union', 'courselistingstylefields');
 
                     // If the style is set to badge, render the fields as Bootstrap badges.
                     // We avoid the effort to create a custom renderer for this small change.

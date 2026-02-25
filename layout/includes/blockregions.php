@@ -112,13 +112,6 @@ class additionalregions {
             $maininnerwrapperclass = 'main-inner-outside-none';
         }
 
-        // If outside-regions wrap both below main content is enabled.
-        $outsideregionswrap = get_config('theme_boost_union', 'outsideregionswrap');
-        if ($outsideregionswrap == THEME_BOOST_UNION_SETTING_OUTSIDEREGIONSWRAPPING_BOTHBELOW) {
-            // Include class in main inner wrapper to wrap both outside regions below main content.
-            $maininnerwrapperclass .= ' main-inner-outside-both-below-maincontent ';
-        }
-
         return $maininnerwrapperclass;
     }
 
@@ -178,25 +171,6 @@ class additionalregions {
     }
 
     /**
-     * Include the additional data for block regions.
-     *
-     * @return array $blockregionsdata
-     */
-    public function addblockregions_additionaldata() {
-
-        $blockregionsdata = [];
-
-        // For outside-left and outside-right regions, add the vertical alignment additions if necessary.
-        $outsideregionsalignment = get_config('theme_boost_union', 'outsideregionsverticalalignment');
-        if ($outsideregionsalignment == THEME_BOOST_UNION_SETTING_OUTSIDEREGIONSVERTICALALIGN_PAGECONTENT) {
-            $blockregionsdata['outsideregions'] = ['verticaloffset' => true];
-            $blockregionsdata['includeblockregionsamd'] = true;
-        }
-
-        return $blockregionsdata;
-    }
-
-    /**
      * Generate data to export for layouts.
      *
      * @return array region data
@@ -210,9 +184,6 @@ class additionalregions {
 
         $maininnerwrapperclass = $this->maininnerwrapperclass($regionsdata);
 
-        // Include the block regions additional data.
-        $blockregionsdata = $this->addblockregions_additionaldata();
-
         return [
             'regions' => $regionsdata,
             'userisediting' => $PAGE->user_is_editing(),
@@ -222,7 +193,6 @@ class additionalregions {
                     get_config('theme_boost_union', 'blockregionoutsidebottomwidth'),
             'outsidetopwidth' => 'theme-block-region-outside-' . get_config('theme_boost_union', 'blockregionoutsidetopwidth'),
             'footerwidth' => 'theme-block-region-footer-' . get_config('theme_boost_union', 'blockregionfooterwidth'),
-            'blockregionsdata' => $blockregionsdata,
         ];
     }
 }
