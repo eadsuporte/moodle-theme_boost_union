@@ -55,11 +55,8 @@ function theme_boost_union_get_flavour_which_applies() {
     } else {
         // If we are on the preview page.
         $previewurl = new core\url('/theme/boost_union/flavours/preview.php');
-        $myhomeurl = new core\url('/local/myhome/home.php');
-
         $ispreviewurl = $previewurl->compare($PAGE->url, URL_MATCH_BASE);
-        $ismyhomeurl = $myhomeurl->compare($PAGE->url, URL_MATCH_BASE);
-        if ($ispreviewurl || $ismyhomeurl) {
+        if ($ispreviewurl) {
             // Get the flavour from the URL.
             $previewflavourid = required_param('id', PARAM_INT);
 
@@ -71,6 +68,23 @@ function theme_boost_union_get_flavour_which_applies() {
 
             // And return the flavour.
             return $appliedflavour;
+        }
+
+        $myhomeurl = new core\url('/local/myhome/home.php');
+        $ismyhomeurl = $myhomeurl->compare($PAGE->url, URL_MATCH_BASE);
+        if ($ismyhomeurl) {
+            $id = required_param('id', PARAM_INT);
+            $local_myhome_home = $DB->get_record("local_myhome_home", ["id" => $id]);
+            if ($local_myhome_home) {
+                $sql = "
+                    SELECT *
+                      FROM {theme_boost_union_flavours}
+                     WHERE JSON_CONTAINS(applytocategories_ids, JSON_QUOTE('{$local_myhome_home->cohortid}'));";
+                $appliedflavours = $DB->get_records_sql($sql);
+                if ($appliedflavours) {
+                    return reset($appliedflavours);
+                }
+            }
         }
 
         // If the flag to purge the flavours cache is set for this user.
@@ -238,6 +252,7 @@ function theme_boost_union_get_flavour_which_applies() {
 
 /**
  * Helper function which gets the filename of the uploaded if to a given flavour filearea with the given itemid.
+ *
  * @param string $filearea The filearea (without the 'flavours_' prefix).
  * @param int $itemid The item id within the filearea.
  *
@@ -272,9 +287,9 @@ function theme_boost_union_flavours_get_filename($filearea, $itemid) {
     return $filename;
 }
 
-
 /**
  * Helper function which checks if a user is a member of the given cohorts.
+ *
  * @param int $userid
  * @param array $cohorts
  *
